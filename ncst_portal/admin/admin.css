@@ -1,0 +1,171 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+body {
+    background: #f4f6fb;
+    font-family: 'Poppins', Arial, sans-serif;
+}
+.sidebar {
+    min-height: 100vh;
+    background: #003399;
+    color: #fff;
+    width: 240px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 2rem;
+    font-family: 'Poppins', Arial, sans-serif;
+    border-top-right-radius: 30px;
+    border-bottom-right-radius: 30px;
+}
+.sidebar .logo {
+    width: 90px;
+    margin-bottom: 1.5rem;
+}
+.sidebar .nav-link {
+    color: #fff;
+    font-weight: 500;
+    margin: 0.5rem 0;
+    border-radius: 6px;
+    transition: background 0.2s;
+    font-family: 'Poppins', Arial, sans-serif;
+}
+.sidebar .nav-link.active, .sidebar .nav-link:hover {
+    background: #FFD600;
+    color: #003399;
+}
+.topbar {
+    height: 64px;
+    background: #fff;
+    border-bottom: 1px solid #e0e0e0;
+    margin-left: 240px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 2rem;
+    font-family: 'Poppins', Arial, sans-serif;
+}
+.main-content {
+    margin-left: 240px;
+    padding: 2rem;
+    font-family: 'Poppins', Arial, sans-serif;
+}
+.card-ncst {
+    border-left: 6px solid #FFD600;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    font-family: 'Poppins', Arial, sans-serif;
+}
+.welcome {
+    color: #003399;
+    font-weight: 600;
+    font-family: 'Poppins', Arial, sans-serif;
+}
+.hamburger-btn {
+  display: none;
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1051;
+  background: #FFD600;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 0.7rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hamburger-btn .menu-icon {
+  display: block;
+  width: 28px;
+  height: 28px;
+  position: relative;
+}
+.hamburger-btn .menu-icon span {
+  display: block;
+  height: 3px;
+  width: 100%;
+  background: #fff;
+  border-radius: 2px;
+  margin: 5px 0;
+}
+@media (max-width: 991px) {
+  .sidebar {
+    position: static;
+    width: 100%;
+    min-height: auto;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 1rem 0.5rem;
+    /* Remove border radius on mobile for sidebar, offcanvas will have it */
+    border-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  .hamburger-btn {
+    display: flex;
+  }
+  .offcanvas-ncst {
+    background: linear-gradient(180deg, #003399 0%, #0055cc 100%);
+    color: #fff;
+    min-height: 100vh;
+    padding-top: 2rem;
+    border-top-right-radius: 30px;
+    border-bottom-right-radius: 30px;
+  }
+  .offcanvas-ncst .logo {
+    width: 60px;
+    margin-bottom: 1rem;
+  }
+  .offcanvas-ncst .nav-link {
+    color: #fff;
+    font-weight: 500;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    transition: background 0.15s, color 0.15s;
+  }
+  .offcanvas-ncst .nav-link.active, .offcanvas-ncst .nav-link:hover {
+    background: #FFD600;
+    color: #003399;
+  }
+  .sidebar .logo {
+    width: 50px;
+    margin-bottom: 0;
+    margin-right: 1rem;
+  }
+  .topbar {
+    margin-left: 0;
+    padding: 0.5rem 1rem;
+    height: auto;
+  }
+  .main-content {
+    margin-left: 0;
+    padding: 1rem;
+  }
+}
+@media (max-width: 767px) {
+  .sidebar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0.5rem 0.5rem;
+  }
+  .sidebar .logo {
+    width: 40px;
+    margin-bottom: 0.5rem;
+    margin-right: 0;
+  }
+  .main-content {
+    padding: 0.5rem;
+  }
+  .card-ncst {
+    padding: 0.5rem;
+  }
+  .table-responsive {
+    font-size: 0.95rem;
+  }
+} 
