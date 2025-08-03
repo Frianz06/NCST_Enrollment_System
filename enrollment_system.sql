@@ -29,7 +29,7 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `enrolled_subjects` (
   `id` int(11) NOT NULL,
-  `student_id` int(11) NOT NULL,
+  `student_id` varchar(20) NOT NULL,
   `subject_code` varchar(50) NOT NULL,
   `section_id` int(11) NOT NULL,
   `enrolled_at` timestamp NOT NULL DEFAULT current_timestamp()
@@ -358,18 +358,68 @@ INSERT INTO `sections` (`id`, `program_id`, `section_name`, `year_level`, `semes
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `subjects`
+--
+
+CREATE TABLE `subjects` (
+  `id` int(11) NOT NULL,
+  `subject_code` varchar(50) NOT NULL,
+  `subject_name` varchar(200) NOT NULL,
+  `units` int(11) NOT NULL DEFAULT 3,
+  `semester` varchar(20) NOT NULL,
+  `year_level` varchar(20) NOT NULL,
+  `program_id` int(11) NOT NULL,
+  `description` text DEFAULT NULL,
+  `prerequisite` varchar(100) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `subjects`
+--
+
+INSERT INTO `subjects` (`id`, `subject_code`, `subject_name`, `units`, `semester`, `year_level`, `program_id`, `description`, `prerequisite`) VALUES
+(1, 'IT101', 'Introduction to Computing', 3, '1st', '1st Year', 1, 'Basic computer concepts and applications', NULL),
+(2, 'MATH101', 'College Algebra', 3, '1st', '1st Year', 1, 'Fundamental algebraic concepts', NULL),
+(3, 'ENG101', 'English Communication', 3, '1st', '1st Year', 1, 'Basic English communication skills', NULL),
+(4, 'PE101', 'Physical Education 1', 2, '1st', '1st Year', 1, 'Physical fitness and wellness', NULL),
+(5, 'NSTP101', 'National Service Training Program 1', 3, '1st', '1st Year', 1, 'Civic welfare training service', NULL),
+(6, 'IT102', 'Computer Programming 1', 3, '2nd', '1st Year', 1, 'Introduction to programming concepts', 'IT101'),
+(7, 'MATH102', 'Discrete Mathematics', 3, '2nd', '1st Year', 1, 'Mathematical structures for computer science', 'MATH101'),
+(8, 'ENG102', 'Technical Writing', 3, '2nd', '1st Year', 1, 'Technical communication skills', 'ENG101'),
+(9, 'PE102', 'Physical Education 2', 2, '2nd', '1st Year', 1, 'Advanced physical fitness', 'PE101'),
+(10, 'NSTP102', 'National Service Training Program 2', 3, '2nd', '1st Year', 1, 'Advanced civic training', 'NSTP101'),
+(11, 'CS101', 'Introduction to Computer Science', 3, '1st', '1st Year', 2, 'Fundamentals of computer science', NULL),
+(12, 'MATH201', 'Calculus 1', 3, '1st', '1st Year', 2, 'Differential calculus', 'MATH101'),
+(13, 'ENG101', 'English Communication', 3, '1st', '1st Year', 2, 'Basic English communication skills', NULL),
+(14, 'PE101', 'Physical Education 1', 2, '1st', '1st Year', 2, 'Physical fitness and wellness', NULL),
+(15, 'NSTP101', 'National Service Training Program 1', 3, '1st', '1st Year', 2, 'Civic welfare training service', NULL),
+(16, 'CS102', 'Computer Programming 1', 3, '2nd', '1st Year', 2, 'Programming fundamentals', 'CS101'),
+(17, 'MATH202', 'Calculus 2', 3, '2nd', '1st Year', 2, 'Integral calculus', 'MATH201'),
+(18, 'ENG102', 'Technical Writing', 3, '2nd', '1st Year', 2, 'Technical communication skills', 'ENG101'),
+(19, 'PE102', 'Physical Education 2', 2, '2nd', '1st Year', 2, 'Advanced physical fitness', 'PE101'),
+(20, 'NSTP102', 'National Service Training Program 2', 3, '2nd', '1st Year', 2, 'Advanced civic training', 'NSTP101');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `students`
 --
 
 CREATE TABLE `students` (
   `id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `student_number` char(10) DEFAULT NULL,
-  `student_type` enum('college','senior_high') NOT NULL,
+  `student_id` varchar(20) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `name` varchar(200) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `course` varchar(100) NOT NULL,
+  `student_type` enum('college','senior_high') NOT NULL DEFAULT 'college',
   `program_id` int(11) DEFAULT NULL,
   `section_id` int(11) DEFAULT NULL,
-  `year_level` varchar(20) DEFAULT NULL,
-  `email` varchar(100) DEFAULT NULL
+  `year_level` varchar(20) DEFAULT '1',
+  `tracking_number` varchar(32) DEFAULT NULL,
+  `application_id` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `status` enum('active','inactive','graduated') NOT NULL DEFAULT 'active'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -388,7 +438,7 @@ CREATE TABLE `student_applications` (
   `civil_status` varchar(50) NOT NULL,
   `type` varchar(20) NOT NULL,
   `admission_type` varchar(30) DEFAULT NULL,
-  `status` varchar(20) DEFAULT 'pending',
+  `status` varchar(20) DEFAULT 'approved',
   `date_submitted` datetime DEFAULT current_timestamp(),
   `nationality` varchar(100) DEFAULT NULL,
   `religion` varchar(100) DEFAULT NULL,
@@ -466,7 +516,7 @@ CREATE TABLE `student_applications` (
 
 CREATE TABLE `student_subjects` (
   `id` int(11) NOT NULL,
-  `student_id` int(11) NOT NULL,
+  `student_id` varchar(20) NOT NULL,
   `subject_id` int(11) NOT NULL,
   `schedule_id` int(11) NOT NULL,
   `section_id` int(11) NOT NULL,
@@ -505,7 +555,8 @@ INSERT INTO `users` (`id`, `username`, `password`, `name`, `role`, `created_at`)
 -- Indexes for table `enrolled_subjects`
 --
 ALTER TABLE `enrolled_subjects`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `student_id` (`student_id`);
 
 --
 -- Indexes for table `programs`
@@ -529,29 +580,38 @@ ALTER TABLE `sections`
   ADD KEY `program_id` (`program_id`);
 
 --
+-- Indexes for table `subjects`
+--
+ALTER TABLE `subjects`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `subject_code` (`subject_code`),
+  ADD KEY `program_id` (`program_id`);
+
+--
 -- Indexes for table `students`
 --
 ALTER TABLE `students`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `student_number` (`student_number`),
-  ADD KEY `user_id` (`user_id`),
+  ADD UNIQUE KEY `student_id` (`student_id`),
+  ADD UNIQUE KEY `tracking_number` (`tracking_number`),
   ADD KEY `program_id` (`program_id`),
-  ADD KEY `section_id` (`section_id`);
+  ADD KEY `section_id` (`section_id`),
+  ADD KEY `application_id` (`application_id`);
 
 --
 -- Indexes for table `student_applications`
 --
 ALTER TABLE `student_applications`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `tracking_number` (`tracking_number`),
-  ADD UNIQUE KEY `student_id` (`student_id`);
+  ADD UNIQUE KEY `tracking_number` (`tracking_number`);
 
 --
 -- Indexes for table `student_subjects`
 --
 ALTER TABLE `student_subjects`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `unique_enrollment` (`student_id`,`subject_id`,`schedule_id`);
+  ADD UNIQUE KEY `unique_enrollment` (`student_id`,`subject_id`,`schedule_id`),
+  ADD KEY `student_id` (`student_id`);
 
 --
 -- Indexes for table `users`
@@ -587,6 +647,12 @@ ALTER TABLE `schedules`
 --
 ALTER TABLE `sections`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=253;
+
+--
+-- AUTO_INCREMENT for table `subjects`
+--
+ALTER TABLE `subjects`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `students`
@@ -629,12 +695,19 @@ ALTER TABLE `sections`
   ADD CONSTRAINT `sections_ibfk_1` FOREIGN KEY (`program_id`) REFERENCES `programs` (`id`);
 
 --
+-- Constraints for table `subjects`
+--
+ALTER TABLE `subjects`
+  ADD CONSTRAINT `subjects_ibfk_1` FOREIGN KEY (`program_id`) REFERENCES `programs` (`id`);
+
+--
 -- Constraints for table `students`
 --
 ALTER TABLE `students`
-  ADD CONSTRAINT `students_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
-  ADD CONSTRAINT `students_ibfk_2` FOREIGN KEY (`program_id`) REFERENCES `programs` (`id`),
-  ADD CONSTRAINT `students_ibfk_3` FOREIGN KEY (`section_id`) REFERENCES `sections` (`id`);
+  ADD CONSTRAINT `students_ibfk_1` FOREIGN KEY (`program_id`) REFERENCES `programs` (`id`),
+  ADD CONSTRAINT `students_ibfk_2` FOREIGN KEY (`section_id`) REFERENCES `sections` (`id`),
+  ADD CONSTRAINT `students_ibfk_3` FOREIGN KEY (`application_id`) REFERENCES `student_applications` (`id`);
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

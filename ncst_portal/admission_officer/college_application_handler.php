@@ -27,6 +27,42 @@ function naIfEmptyOrSelect($val) {
     return (empty($val) || $val === '-- Select --') ? null : $val;
 }
 
+// Function to generate next student ID
+function generateStudentId($conn) {
+    $year = 2025;
+    
+    // Get the highest student ID for the current year
+    $stmt = $conn->prepare("SELECT student_id FROM students WHERE student_id LIKE ? ORDER BY student_id DESC LIMIT 1");
+    $pattern = $year . '-%';
+    $stmt->bind_param('s', $pattern);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($row = $result->fetch_assoc()) {
+        // Extract number part and increment
+        $lastId = $row['student_id'];
+        $number = intval(substr($lastId, 5)); // Get number after "2025-"
+        $nextNumber = $number + 1;
+    } else {
+        // First student for this year
+        $nextNumber = 1;
+    }
+    
+    return $year . '-' . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
+}
+
+// Function to get program ID from course name
+function getProgramId($conn, $courseName) {
+    $stmt = $conn->prepare("SELECT id FROM programs WHERE name = ?");
+    $stmt->bind_param('s', $courseName);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($row = $result->fetch_assoc()) {
+        return $row['id'];
+    }
+    return null;
+}
+
 // Define required fields for College applications
 $required_fields = [
     'course', 'last_name', 'first_name', 'dob', 'gender', 'civil_status', 
@@ -78,6 +114,9 @@ if (count($missing) > 0) {
 }
 
 try {
+    // Start transaction
+    $conn->begin_transaction();
+    
     // List of all columns in the student_applications table that can be filled by the form
     $columns = [
         'name', 'email', 'course_or_track', 'gender', 'civil_status', 'type', 'admission_type', 'status', 
@@ -180,10 +219,10 @@ try {
         }
     }
     
-    // Add required static fields
+    // Add required static fields - AUTO APPROVED
     $db_fields[] = 'status';
     $placeholders[] = '?';
-    $values[] = 'new';
+    $values[] = 'approved';
     
     // Add submitted by information
     $db_fields[] = 'admission_type';
@@ -209,13 +248,56 @@ try {
         $update_stmt->execute();
         $update_stmt->close();
         
+        // Generate student ID and create student account
+        $student_id = generateStudentId($conn);
+        $program_id = getProgramId($conn, $_POST['course']);
+        
+        // Password is the surname (last name) - plain text for easy access
+        $password = password_hash(strtolower($_POST['last_name']), PASSWORD_DEFAULT);
+        
+        // Compose full name for student record
+        $full_name = trim(($_POST['first_name'] ?? '') . ' ' . ($_POST['middle_name'] ?? '') . ' ' . ($_POST['last_name'] ?? '') . ' ' . ($_POST['suffix'] ?? ''));
+        
+        // Insert into students table
+        $student_insert_sql = "INSERT INTO students (student_id, password, name, email, course, student_type, program_id, tracking_number, application_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $student_stmt = $conn->prepare($student_insert_sql);
+        
+        if (!$student_stmt) {
+            throw new Exception('Student table prepare error: ' . $conn->error);
+        }
+        
+        $student_type = 'college';
+        $student_stmt->bind_param('ssssssssi', 
+            $student_id, 
+            $password, 
+            $full_name, 
+            $_POST['email'], 
+            $_POST['course'], 
+            $student_type, 
+            $program_id, 
+            $tracking_number, 
+            $new_applicant_id
+        );
+        
+        if (!$student_stmt->execute()) {
+            throw new Exception('Student insertion error: ' . $student_stmt->error);
+        }
+        
+        $student_stmt->close();
+        
+        // Commit transaction
+        $conn->commit();
+        
         // Log success
-        error_log("College application submitted successfully with tracking number: " . $tracking_number . " by admission officer: " . $_SESSION['username']);
+        error_log("College application submitted successfully with tracking number: " . $tracking_number . " and student ID: " . $student_id . " by admission officer: " . $_SESSION['username']);
         
         echo json_encode([
             'success' => true,
-            'message' => 'College application submitted successfully!',
+            'message' => 'College application submitted successfully! Student account created.',
             'tracking_number' => $tracking_number,
+            'student_id' => $student_id,
+            'username' => $student_id,
+            'password' => $_POST['last_name'],
             'applicant_id' => $new_applicant_id
         ]);
         
@@ -226,6 +308,8 @@ try {
     $stmt->close();
     
 } catch (Exception $e) {
+    // Rollback transaction on error
+    $conn->rollback();
     error_log("College application submission error: " . $e->getMessage());
     echo json_encode([
         'success' => false,
