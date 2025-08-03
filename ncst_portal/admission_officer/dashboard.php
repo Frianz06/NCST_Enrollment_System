@@ -100,10 +100,6 @@ require_once '../../db.php';
             background: #28a745 !important;
             color: #fff;
         }
-        .table-danger thead {
-            background: #dc3545 !important;
-            color: #fff;
-        }
         .badge.bg-success {
             font-size: 0.8rem;
             padding: 0.4rem 0.6rem;
@@ -126,9 +122,7 @@ require_once '../../db.php';
         <img src="../../images/ncst-logo.png" alt="NCST Logo" class="logo">
         <h5 class="mb-4">NCST Admission</h5>
         <nav class="nav flex-column w-100">
-            <a class="nav-link active" href="#pending-section" data-bs-toggle="tab">Pending Applications</a>
-            <a class="nav-link" href="#approved-section" data-bs-toggle="tab">Approved Applications</a>
-            <a class="nav-link" href="#rejected-section" data-bs-toggle="tab">Rejected Applications</a>
+            <a class="nav-link active" href="#applications-section" data-bs-toggle="tab">All Applications</a>
             <a class="nav-link" href="#college-registration-section" data-bs-toggle="tab">College Registration</a>
         </nav>
     </div>
@@ -153,9 +147,7 @@ require_once '../../db.php';
           </div>
         </div>
         <nav class="nav flex-column">
-          <a class="nav-link active" href="#pending-section" data-bs-toggle="tab">Pending Applications</a>
-          <a class="nav-link" href="#approved-section" data-bs-toggle="tab">Approved Applications</a>
-          <a class="nav-link" href="#rejected-section" data-bs-toggle="tab">Rejected Applications</a>
+          <a class="nav-link active" href="#applications-section" data-bs-toggle="tab">All Applications</a>
           <a class="nav-link" href="#college-registration-section" data-bs-toggle="tab">College Registration</a>
         </nav>
       </div>
@@ -166,113 +158,48 @@ require_once '../../db.php';
     </div>
     <div class="main-content">
         <div class="tab-content">
-            <!-- Pending Applications Tab -->
-            <div class="tab-pane fade show active" id="pending-section">
+            <!-- All Applications Tab -->
+            <div class="tab-pane fade show active" id="applications-section">
                 <div class="card-ncst p-4">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div>
-                            <h3 class="fw-bold mb-0" style="color:#003399;">Pending Applications</h3>
-                            <small class="text-muted" id="pendingCount"></small>
+                            <h3 class="fw-bold mb-0" style="color:#003399;">Submitted Applications</h3>
+                            <small class="text-muted">All applications are automatically approved upon submission</small>
                         </div>
                         <div class="input-group" style="max-width: 320px;">
-                            <input type="text" id="searchPendingInput" class="form-control" placeholder="Search by Tracking # or Surname...">
+                            <input type="text" id="searchApplicationsInput" class="form-control" placeholder="Search by Tracking # or Name...">
                             <span class="input-group-text bg-primary text-white"><i class="bi bi-search"></i></span>
                         </div>
                     </div>
                     <div class="table-responsive">
-                        <table class="table table-bordered align-middle" id="pendingTable">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Tracking #</th>
-                                    <th>Full Name</th>
-                                    <th>Type</th>
-                                    <th>Course/Track</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="pendingTableBody">
-                                <!-- AJAX loaded rows -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <!-- Approved Applications Tab -->
-            <div class="tab-pane fade" id="approved-section">
-                <div class="card-ncst p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div>
-                            <h3 class="fw-bold mb-0" style="color:#28a745;">Approved Applications</h3>
-                            <small class="text-muted" id="approvedCount"></small>
-                        </div>
-                        <div class="d-flex gap-2">
-                            <div class="input-group" style="max-width: 250px;">
-                                <input type="text" id="searchApprovedInput" class="form-control" placeholder="Search by Tracking # or Surname...">
-                                <span class="input-group-text bg-success text-white"><i class="bi bi-search"></i></span>
-                            </div>
-                            <button class="btn btn-primary" onclick="enrollAllApproved()">
-                                <i class="bi bi-graduation-cap"></i> Enroll Students
-                            </button>
-                        </div>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-bordered align-middle" id="approvedTable">
+                        <table class="table table-bordered align-middle" id="applicationsTable">
                             <thead class="table-success">
                                 <tr>
                                     <th>Tracking #</th>
+                                    <th>Student ID</th>
                                     <th>Full Name</th>
-                                    <th>Type</th>
-                                    <th>Course/Track</th>
+                                    <th>Course</th>
+                                    <th>Email</th>
                                     <th>Status</th>
+                                    <th>Date Submitted</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
-                            <tbody id="approvedTableBody">
+                            <tbody id="applicationsTableBody">
                                 <!-- AJAX loaded rows -->
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
-            <!-- Rejected Applications Tab -->
-            <div class="tab-pane fade" id="rejected-section">
-                <div class="card-ncst p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div>
-                            <h3 class="fw-bold mb-0" style="color:#dc3545;">Rejected Applications</h3>
-                            <small class="text-muted" id="rejectedCount"></small>
-                        </div>
-                        <div class="input-group" style="max-width: 320px;">
-                            <input type="text" id="searchRejectedInput" class="form-control" placeholder="Search by Tracking # or Surname...">
-                            <span class="input-group-text bg-danger text-white"><i class="bi bi-search"></i></span>
-                        </div>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-bordered align-middle" id="rejectedTable">
-                            <thead class="table-danger">
-                                <tr>
-                                    <th>Tracking #</th>
-                                    <th>Full Name</th>
-                                    <th>Type</th>
-                                    <th>Course/Track</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="rejectedTableBody">
-                                <!-- AJAX loaded rows -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+            
             <!-- College Registration Tab -->
             <div class="tab-pane fade" id="college-registration-section">
                 <div class="card-ncst p-4">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div>
                             <h3 class="fw-bold mb-0" style="color:#003399;">College Registration</h3>
-                            <small class="text-muted">Register new college students</small>
+                            <small class="text-muted">Register new college students - Student ID and account will be auto-generated</small>
                         </div>
                     </div>
                     <div class="row justify-content-center">
@@ -644,317 +571,76 @@ require_once '../../db.php';
             </div>
         </div>
     </div>
-    <!-- Reusable NCST Modal (unchanged) -->
-    <div class="modal fade" id="ncstModal" tabindex="-1" aria-labelledby="ncstModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
+    
+    <!-- View Application Modal -->
+    <div class="modal fade" id="viewApplicationModal" tabindex="-1" aria-labelledby="viewApplicationModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header ncst-theme">
-            <div class="d-flex align-items-center">
-              <img src="../../images/ncst-logo.png" alt="NCST Logo" style="height: 30px; margin-right: 10px;">
-              <h5 class="modal-title mb-0" id="ncstModalLabel">Modal Title</h5>
-            </div>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter: invert(38%) sepia(99%) saturate(749%) hue-rotate(1deg) brightness(104%) contrast(104%);"></button>
-          </div>
-          <div class="modal-body text-center">
-            <div id="ncstModalContent" style="font-size:1.1rem; background: white; padding: 20px; border-radius: 8px; border: 1px solid #dee2e6;">
-              Modal content goes here
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="button" class="btn btn-ncst" id="ncstModalConfirm">Confirm</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Place this modal at the end of your HTML, before </body> -->
-    <div class="modal fade" id="viewApplicantModal" tabindex="-1" aria-labelledby="viewApplicantModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header ncst-theme">
-            <h5 class="modal-title" id="viewApplicantModalLabel">Applicant Details</h5>
+            <h5 class="modal-title" id="viewApplicationModalLabel">Application Details</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body" id="viewApplicantModalBody">
+          <div class="modal-body" id="viewApplicationModalBody">
             <!-- Details will be loaded here -->
           </div>
         </div>
       </div>
     </div>
-    <!-- Checklist Modal -->
-    <div class="modal fade" id="checklistModal" tabindex="-1" aria-labelledby="checklistModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header ncst-theme">
-            <h5 class="modal-title" id="checklistModalLabel">Requirements Checklist</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body" id="checklistModalBody">
-            <!-- Checklist will be loaded here -->
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-ncst" id="saveChecklistBtn">Save Checklist</button>
-          </div>
-        </div>
-      </div>
-    </div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.js"></script>
 <script>
-// AJAX loader for application tables
-function loadApplications(status, tableBodyId, countId) {
+// AJAX loader for applications table
+function loadApplications() {
     $.ajax({
         url: 'fetch_applications.php',
         type: 'GET',
-        data: { status: status },
+        data: { status: 'all' },
         success: function(data) {
-            $('#' + tableBodyId).html(data);
-            // Optionally, update count if fetch_applications.php returns a count (not implemented by default)
-            // $('#' + countId).text(count + ' application(s) ...');
+            $('#applicationsTableBody').html(data);
         },
         error: function(xhr, status, error) {
-            $('#' + tableBodyId).html('<tr><td colspan="6" class="text-center text-danger">Failed to load applications.</td></tr>');
+            $('#applicationsTableBody').html('<tr><td colspan="8" class="text-center text-danger">Failed to load applications.</td></tr>');
         }
     });
 }
 
 $(document).ready(function() {
     // Initial load
-    loadApplications('new', 'pendingTableBody', 'pendingCount');
-    loadApplications('approved', 'approvedTableBody', 'approvedCount');
-    loadApplications('rejected', 'rejectedTableBody', 'rejectedCount');
+    loadApplications();
 
     // Tab navigation
     $('.nav-link').on('click', function() {
         $('.nav-link').removeClass('active');
         $(this).addClass('active');
         var target = $(this).attr('href');
-        if (target === '#pending-section') loadApplications('new', 'pendingTableBody', 'pendingCount');
-        if (target === '#approved-section') loadApplications('approved', 'approvedTableBody', 'approvedCount');
-        if (target === '#rejected-section') loadApplications('rejected', 'rejectedTableBody', 'rejectedCount');
+        if (target === '#applications-section') {
+            loadApplications();
+        }
     });
 
-    // Search bar filter logic (client-side)
-    $('#searchPendingInput').on('keyup', function() {
+    // Search functionality
+    $('#searchApplicationsInput').on('keyup', function() {
         var value = $(this).val().toLowerCase();
-        $('#pendingTableBody tr').filter(function() {
+        $('#applicationsTableBody tr').filter(function() {
             var tracking = $(this).find('td').eq(0).text().toLowerCase();
-            var name = $(this).find('td').eq(1).text().toLowerCase();
+            var name = $(this).find('td').eq(2).text().toLowerCase();
             $(this).toggle(
-                tracking.indexOf(value) > -1 ||
-                name.split(',')[0].indexOf(value) > -1
-            );
-        });
-    });
-    $('#searchApprovedInput').on('keyup', function() {
-        var value = $(this).val().toLowerCase();
-        $('#approvedTableBody tr').filter(function() {
-            var tracking = $(this).find('td').eq(0).text().toLowerCase();
-            var name = $(this).find('td').eq(1).text().toLowerCase();
-            $(this).toggle(
-                tracking.indexOf(value) > -1 ||
-                name.split(',')[0].indexOf(value) > -1
-            );
-        });
-    });
-    $('#searchRejectedInput').on('keyup', function() {
-        var value = $(this).val().toLowerCase();
-        $('#rejectedTableBody tr').filter(function() {
-            var tracking = $(this).find('td').eq(0).text().toLowerCase();
-            var name = $(this).find('td').eq(1).text().toLowerCase();
-            $(this).toggle(
-                tracking.indexOf(value) > -1 ||
-                name.split(',')[0].indexOf(value) > -1
+                tracking.indexOf(value) > -1 || name.indexOf(value) > -1
             );
         });
     });
 });
 
-// Reusable NCST Modal Functions (unchanged)
-function showNcstModal(title, content, confirmText = 'Confirm', showCancel = true, onConfirm = null) {
-  document.getElementById('ncstModalLabel').textContent = title;
-  document.getElementById('ncstModalContent').innerHTML = content;
-  document.getElementById('ncstModalConfirm').textContent = confirmText;
-  const cancelBtn = document.querySelector('#ncstModal .btn-secondary');
-  if (showCancel) {
-    cancelBtn.style.display = 'block';
-  } else {
-    cancelBtn.style.display = 'none';
-  }
-  const confirmBtn = document.getElementById('ncstModalConfirm');
-  const newConfirmBtn = confirmBtn.cloneNode(true);
-  confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
-  if (onConfirm) {
-    newConfirmBtn.addEventListener('click', onConfirm);
-  } else {
-    // If no onConfirm and cancel is hidden, close modal on OK
-    if (!showCancel) {
-      newConfirmBtn.addEventListener('click', function() {
-        var modal = bootstrap.Modal.getInstance(document.getElementById('ncstModal'));
-        modal.hide();
-      });
-    }
-  }
-  const modal = new bootstrap.Modal(document.getElementById('ncstModal'));
-  modal.show();
-}
-
-let currentAppId = null;
-
-function approveApplicant(appId) {
-    const badge = $('#req-status-' + appId);
-    if (badge.length && badge.text().trim() !== 'Complete') {
-        showNcstModal(
-            'Cannot Approve',
-            'Requirements are still incomplete. You cannot approve this applicant until all requirements are complete.',
-            'OK',
-            false
-        );
-        return;
-    }
-    currentAppId = appId;
-    showNcstModal(
-        'Confirm Approval',
-        'Are you sure you want to approve this applicant?',
-        'Approve',
-        true,
-        function() {
-            $.ajax({
-                url: 'process_decision.php',
-                type: 'POST',
-                data: {
-                    id: currentAppId,
-                    action: 'approve',
-                    checklist: '{}'
-                },
-                dataType: 'json',
-                success: function(data) {
-                    if (data.success) {
-                        alert('Applicant approved successfully! They will now appear in the approved applications section and can proceed to registration.');
-                        loadApplications('new', 'pendingTableBody', 'pendingCount');
-                        loadApplications('approved', 'approvedTableBody', 'approvedCount');
-                    } else {
-                        alert(data.message || 'Error approving applicant.');
-                    }
-                },
-                error: function(xhr, status, error) {
-                    alert('AJAX error: ' + error + '\nPlease check the console for details.');
-                }
-            });
-            var modal = bootstrap.Modal.getInstance(document.getElementById('ncstModal'));
-            modal.hide();
-        }
-    );
-}
-
-function rejectApplicant(appId) {
-    currentAppId = appId;
-    showNcstModal(
-        'Confirm Rejection',
-        'Are you sure you want to reject this applicant?',
-        'Reject',
-        true,
-        function() {
-            $.ajax({
-                url: 'process_decision.php',
-                type: 'POST',
-                data: {
-                    id: currentAppId,
-                    action: 'reject',
-                    checklist: '{}'
-                },
-                dataType: 'json',
-                success: function(data) {
-                    if (data.success) {
-                        alert('Applicant rejected successfully!');
-                        loadApplications('new', 'pendingTableBody', 'pendingCount');
-                        loadApplications('rejected', 'rejectedTableBody', 'rejectedCount');
-                    } else {
-                        alert(data.message || 'Error rejecting applicant.');
-                    }
-                },
-                error: function(xhr, status, error) {
-                    alert('AJAX error: ' + error + '\nPlease check the console for details.');
-                }
-            });
-            var modal = bootstrap.Modal.getInstance(document.getElementById('ncstModal'));
-            modal.hide();
-        }
-    );
-}
-
-function enrollStudent(studentId, studentType) {
-    window.location.href = '../registration_officer/enrollment_page.php';
-}
-function enrollAllApproved() {
-    window.location.href = '../registration_officer/enrollment_page.php';
-}
-
-function showApplicantDetails(applicantId) {
-    $('#viewApplicantModalBody').html('<div class="text-center text-muted">Loading...</div>');
-    $.get('get_applicant_details.php', { id: applicantId }, function(data) {
-        $('#viewApplicantModalBody').html(data);
-        var modal = new bootstrap.Modal(document.getElementById('viewApplicantModal'));
+function showApplicationDetails(applicationId) {
+    $('#viewApplicationModalBody').html('<div class="text-center text-muted">Loading...</div>');
+    $.get('get_applicant_details.php', { id: applicationId }, function(data) {
+        $('#viewApplicationModalBody').html(data);
+        var modal = new bootstrap.Modal(document.getElementById('viewApplicationModal'));
         modal.show();
     });
 }
-
-let currentChecklistApplicantId = null;
-
-function showChecklistModal(applicantId) {
-    currentChecklistApplicantId = applicantId;
-    $('#checklistModalBody').html('<div class="text-center text-muted">Loading...</div>');
-    $.get('get_checklist.php', { id: applicantId }, function(data) {
-        $('#checklistModalBody').html(data);
-        var modal = new bootstrap.Modal(document.getElementById('checklistModal'));
-        modal.show();
-    });
-}
-
-$(document).on('click', '#saveChecklistBtn', function() {
-    const checklist = {};
-    $('#checklistModalBody input[type=checkbox]').each(function() {
-        checklist[$(this).data('req')] = $(this).is(':checked') ? 1 : 0;
-    });
-    // Requirements list (must match PHP)
-    const normalRequirements = [
-        "Properly accomplished admission form",
-        "Four (4) 2x2 recent, identical color pictures in white background with name tag",
-        "Five (5) 1x1 recent, identical color pictures in white background with name tag",
-        "Submit original and photocopied Form 138 / Report Card",
-        "Submit original Good Moral Character certificate with dry seal and Photocopied",
-        "1pc. Long Brown Envelope"
-    ];
-    const marriageReq = "If married, two (2) photocopies of marriage certificate duly signed by a priest / minister";
-    const isMarried = checklist['married'] === 1;
-    // Check if all normal requirements are checked
-    let allNormalChecked = normalRequirements.every(req => checklist[req] === 1);
-    // If married, marriage certificate must also be checked
-    let isComplete = allNormalChecked && (!isMarried || checklist[marriageReq] === 1);
-    $.post('save_checklist.php', {
-        id: currentChecklistApplicantId,
-        checklist: JSON.stringify(checklist)
-    }, function(resp) {
-        if (resp.success) {
-            // Update badge in table
-            const badge = $('#req-status-' + currentChecklistApplicantId);
-            if (badge.length) {
-                if (isComplete) {
-                    badge.removeClass('bg-danger').addClass('bg-success').text('Complete');
-                } else {
-                    badge.removeClass('bg-success').addClass('bg-danger').text('Incomplete');
-                }
-            }
-            // Optionally close modal
-            var modal = bootstrap.Modal.getInstance(document.getElementById('checklistModal'));
-            modal.hide();
-        } else {
-            alert(resp.message || 'Failed to save checklist.');
-        }
-    }, 'json');
-});
 
 // College Registration Form JavaScript
 document.addEventListener('DOMContentLoaded', function() {
@@ -1007,15 +693,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     collegeFormSuccess.innerHTML = `
                         <strong>Application Submitted Successfully!</strong><br>
                         Tracking Number: <strong>${data.tracking_number}</strong><br>
-                        <small>The application has been added to the system and can be viewed by all authorized personnel.</small>
+                        Student ID: <strong>${data.student_id}</strong><br>
+                        Username: <strong>${data.username}</strong><br>
+                        Password: <strong>${data.password}</strong><br>
+                        <small>The student can now login to the student portal using these credentials.</small>
                     `;
                     collegeForm.reset();
                     // Reset dropdowns
                     populateRegionSelect('college_region');
                     updateProvince('college_region','college_province','college_city','college_barangay');
                     
-                    // Refresh the pending applications table
-                    loadApplications('new', 'pendingTableBody', 'pendingCount');
+                    // Refresh the applications table
+                    loadApplications();
                 } else {
                     collegeFormError.style.display = 'block';
                     collegeFormError.textContent = data.message || 'There was an error submitting the application. Please try again.';

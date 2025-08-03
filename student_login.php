@@ -5,26 +5,33 @@ require_once __DIR__ . '/db.php';
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $student_id = trim($_POST['student_id'] ?? '');
-    $password = $_POST['password'] ?? '';
+    $password = trim($_POST['password'] ?? '');
     $student_type = $_POST['student_type'] ?? '';
+    
     if ($student_id && $password && $student_type) {
+        // Query the new students table structure
         $stmt = $conn->prepare('SELECT * FROM students WHERE student_id = ? AND student_type = ? LIMIT 1');
         $stmt->bind_param('ss', $student_id, $student_type);
         $stmt->execute();
         $result = $stmt->get_result();
+        
         if ($student = $result->fetch_assoc()) {
-            if (password_verify($password, $student['password'])) {
+            // Verify password (password is hashed surname)
+            if (password_verify(strtolower($password), $student['password'])) {
                 session_regenerate_id(true);
                 $_SESSION['student_id'] = $student['student_id'];
                 $_SESSION['student_name'] = $student['name'];
                 $_SESSION['student_type'] = $student['student_type'];
+                $_SESSION['student_course'] = $student['course'];
+                $_SESSION['student_email'] = $student['email'];
+                $_SESSION['program_id'] = $student['program_id'];
                 header('Location: student_portal.php');
                 exit;
             } else {
                 $error = 'Incorrect password.';
             }
         } else {
-            $error = 'Student not found.';
+            $error = 'Student not found or incorrect student type.';
         }
     } else {
         $error = 'Please fill in all fields.';
@@ -86,11 +93,13 @@ body, html {
       </div>
       <div class="mb-3 text-start">
         <label for="student_id" class="form-label fw-semibold" style="color: #003399;">Student ID</label>
-        <input type="text" id="student_id" name="student_id" class="form-control" placeholder="Enter your Student ID" required style="border-color: #003399; color: #003399;">
+        <input type="text" id="student_id" name="student_id" class="form-control" placeholder="Enter your Student ID (e.g. 2025-00001)" required style="border-color: #003399; color: #003399;">
+        <div class="form-text">Format: 2025-##### (e.g. 2025-00001)</div>
       </div>
       <div class="mb-3 text-start">
         <label for="password" class="form-label fw-semibold" style="color: #003399;">Password</label>
-        <input type="password" id="password" name="password" class="form-control" placeholder="Enter your Password" required style="border-color: #003399; color: #003399;">
+        <input type="password" id="password" name="password" class="form-control" placeholder="Enter your surname" required style="border-color: #003399; color: #003399;">
+        <div class="form-text">Use your family name/surname as password</div>
       </div>
       <div class="form-check mb-3">
         <input class="form-check-input" type="checkbox" id="agree" required>
@@ -112,7 +121,7 @@ body, html {
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body" style="font-size: 0.95rem;">
-        Users agreed that No action shall be taken to impose unreasonable or disproportionately large load on the infrastructure of the Site or NCST’s systems or networks, or any systems or networks connected to the Site or to NCST in general. You may not attempt to gain unauthorized access to any portion or feature of the Site, or any other systems or networks connected to the Site or to any NCST server, or to any of the services offered on or through the Site, by hacking, password "mining" or any other illegitimate means. Users may not use anyone else’s login credential, password or account at any time without the express permission and consent of the holder of that login credential, password or account. NCST cannot and will not be liable for any loss or damage arising from your failure to comply with these obligations. Additionally, by using the Site, you acknowledge and agree that Internet transmissions are never completely private or secure. You understand that any message or information you send to the Site may be read or intercepted by others. NCST provides the use of this Site on an “as-is” basis without warranting any aspect of its Services. Therefore, Users are on notice that they access and use the Site at their own risk. Using NCST’s Site and remote servers constitutes full agreement and understanding of this policy, NCST reserves the right to modify this policy without permission or consent of its users or recipients.
+        Users agreed that No action shall be taken to impose unreasonable or disproportionately large load on the infrastructure of the Site or NCST's systems or networks, or any systems or networks connected to the Site or to NCST in general. You may not attempt to gain unauthorized access to any portion or feature of the Site, or any other systems or networks connected to the Site or to any NCST server, or to any of the services offered on or through the Site, by hacking, password "mining" or any other illegitimate means. Users may not use anyone else's login credential, password or account at any time without the express permission and consent of the holder of that login credential, password or account. NCST cannot and will not be liable for any loss or damage arising from your failure to comply with these obligations. Additionally, by using the Site, you acknowledge and agree that Internet transmissions are never completely private or secure. You understand that any message or information you send to the Site may be read or intercepted by others. NCST provides the use of this Site on an "as-is" basis without warranting any aspect of its Services. Therefore, Users are on notice that they access and use the Site at their own risk. Using NCST's Site and remote servers constitutes full agreement and understanding of this policy, NCST reserves the right to modify this policy without permission or consent of its users or recipients.
         </div>
   </div>
 </body>
