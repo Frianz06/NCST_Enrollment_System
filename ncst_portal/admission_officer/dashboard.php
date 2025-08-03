@@ -129,6 +129,7 @@ require_once '../../db.php';
             <a class="nav-link active" href="#pending-section" data-bs-toggle="tab">Pending Applications</a>
             <a class="nav-link" href="#approved-section" data-bs-toggle="tab">Approved Applications</a>
             <a class="nav-link" href="#rejected-section" data-bs-toggle="tab">Rejected Applications</a>
+            <a class="nav-link" href="#college-registration-section" data-bs-toggle="tab">College Registration</a>
         </nav>
     </div>
     <!-- Hamburger Button for Mobile Only (top left) -->
@@ -155,6 +156,7 @@ require_once '../../db.php';
           <a class="nav-link active" href="#pending-section" data-bs-toggle="tab">Pending Applications</a>
           <a class="nav-link" href="#approved-section" data-bs-toggle="tab">Approved Applications</a>
           <a class="nav-link" href="#rejected-section" data-bs-toggle="tab">Rejected Applications</a>
+          <a class="nav-link" href="#college-registration-section" data-bs-toggle="tab">College Registration</a>
         </nav>
       </div>
     </div>
@@ -261,6 +263,160 @@ require_once '../../db.php';
                                 <!-- AJAX loaded rows -->
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+            <!-- College Registration Tab -->
+            <div class="tab-pane fade" id="college-registration-section">
+                <div class="card-ncst p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h3 class="fw-bold mb-0" style="color:#003399;">College Registration</h3>
+                            <small class="text-muted">Register new college students</small>
+                        </div>
+                    </div>
+                    <div class="row justify-content-center">
+                        <div class="col-lg-10">
+                            <div class="card border-primary mb-4">
+                                <div class="card-body">
+                                    <div id="collegeFormError" class="alert alert-danger" style="display:none;"></div>
+                                    <div id="collegeFormSuccess" class="alert alert-success" style="display:none;"></div>
+                                    <form id="collegeForm" method="POST" action="">
+                                        <h5 class="bg-info text-white p-2 rounded">Desired Course</h5>
+                                        <div class="mb-3">
+                                            <label class="form-label">Desired Course</label>
+                                            <select class="form-select" name="course" required>
+                                                <option value="" selected disabled>-- Select --</option>
+                                                <option value="BSIT">BSIT</option>
+                                                <option value="BSCS">BSCS</option>
+                                                <option value="BSBA">BSBA</option>
+                                                <option value="BSHM">BSHM</option>
+                                                <option value="BSTM">BSTM</option>
+                                                <option value="BSPSYCH">BSPSYCH</option>
+                                                <option value="BSCRIM">BSCRIM</option>
+                                            </select>
+                                        </div>
+                                        <h5 class="bg-info text-white p-2 rounded">Personal Information</h5>
+                                        <div class="row mb-3">
+                                            <div class="col-md-3"><label class="form-label">Family Name</label><input type="text" class="form-control" name="last_name" required></div>
+                                            <div class="col-md-3"><label class="form-label">Given Name</label><input type="text" class="form-control" name="first_name" required></div>
+                                            <div class="col-md-3"><label class="form-label">Middle Name</label><input type="text" class="form-control" name="middle_name"></div>
+                                            <div class="col-md-3"><label class="form-label">Suffix</label><input type="text" class="form-control" name="suffix"></div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-3"><label class="form-label">Date Of Birth</label><input type="date" class="form-control" name="dob" required></div>
+                                            <div class="col-md-3"><label class="form-label">Place of Birth</label><input type="text" class="form-control" name="pob"></div>
+                                            <div class="col-md-3"><label class="form-label">Gender</label>
+                                                <select class="form-select" name="gender" required>
+                                                    <option value="" disabled selected>-- Select --</option>
+                                                    <option value="Male">Male</option>
+                                                    <option value="Female">Female</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3"><label class="form-label">Civil Status</label>
+                                                <select class="form-select" name="civil_status" required>
+                                                    <option value="" disabled selected>-- Select --</option>
+                                                    <option value="Single">Single</option>
+                                                    <option value="Married">Married</option>
+                                                    <option value="Widowed">Widowed</option>
+                                                    <option value="Separated">Separated</option>
+                                                    <option value="Annulled">Annulled</option>
+                                                    <option value="Divorced">Divorced</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-3"><label class="form-label">Mobile No</label><input type="text" class="form-control" name="mobile" required></div>
+                                            <div class="col-md-3"><label class="form-label">Land Line</label><input type="text" class="form-control" name="landline"></div>
+                                            <div class="col-md-3"><label class="form-label">Email Address</label><input type="email" class="form-control" name="email" required></div>
+                                            <div class="col-md-3"><label class="form-label">Zip Code</label><input type="text" class="form-control" name="zip_code" required></div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Complete Address</label>
+                                            <input type="text" class="form-control" name="address" required>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-3">
+                                                <label class="form-label">Region</label>
+                                                <select class="form-select" name="region" id="college_region" required onchange="updateProvince('college_region','college_province','college_city','college_barangay')">
+                                                    <option value="" disabled selected>-- Select --</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">Province</label>
+                                                <select class="form-select" name="province" id="college_province" required onchange="updateCity('college_province','college_city','college_barangay')">
+                                                    <option value="" disabled selected>-- Select --</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">Town/Municipality/City</label>
+                                                <select class="form-select" name="city" id="college_city" required onchange="updateBarangay('college_city','college_barangay')">
+                                                    <option value="" disabled selected>-- Select --</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">Barangay</label>
+                                                <select class="form-select" name="barangay" id="college_barangay" required>
+                                                    <option value="" disabled selected>-- Select --</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <h5 class="bg-info text-white p-2 rounded">Educational Information</h5>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Primary School</label>
+                                                <select class="form-select" name="elementary_school">
+                                                    <option value="" selected>-- Select --</option>
+                                                    <option value="Dasmariñas Elementary School">Dasmariñas Elementary School</option>
+                                                    <option value="Imus Central School">Imus Central School</option>
+                                                    <option value="Bacoor Elementary School">Bacoor Elementary School</option>
+                                                    <option value="Other">Other</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">Year Graduated</label>
+                                                <input type="text" class="form-control" name="elementary_year_grad">
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Secondary School</label>
+                                                <select class="form-select" name="high_school">
+                                                    <option value="" selected>-- Select --</option>
+                                                    <option value="Dasmariñas National High School">Dasmariñas National High School</option>
+                                                    <option value="Imus National High School">Imus National High School</option>
+                                                    <option value="Bacoor National High School">Bacoor National High School</option>
+                                                    <option value="Other">Other</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">Year Graduated</label>
+                                                <input type="text" class="form-control" name="high_year_grad">
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Student Type</label>
+                                                <select class="form-select" name="student_type" required>
+                                                    <option value="" selected disabled>-- Select --</option>
+                                                    <option value="New">New</option>
+                                                    <option value="Transferee">Transferee</option>
+                                                    <option value="Returnee">Returnee</option>
+                                                    <option value="Foreign">Foreign</option>
+                                                    <option value="ALS Graduate">ALS Graduate</option>
+                                                    <option value="DTS Student">DTS Student</option>
+                                                    <option value="Cross Enrollee">Cross Enrollee</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3 text-end">
+                                            <button type="submit" class="btn btn-warning fw-bold" style="color: #003399;">Submit Application</button>
+                                            <button type="reset" class="btn btn-danger text-white ms-2">Clear Form</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -577,6 +733,183 @@ $(document).on('click', '#saveChecklistBtn', function() {
         }
     }, 'json');
 });
+
+// College Registration Form JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize region dropdown for college registration
+    populateRegionSelect('college_region');
+    
+    // College form submission
+    const collegeForm = document.getElementById('collegeForm');
+    const collegeFormError = document.getElementById('collegeFormError');
+    const collegeFormSuccess = document.getElementById('collegeFormSuccess');
+    
+    if (collegeForm) {
+        collegeForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Hide previous messages
+            collegeFormError.style.display = 'none';
+            collegeFormSuccess.style.display = 'none';
+            
+            // Validate required fields
+            let firstInvalid = null;
+            collegeForm.querySelectorAll('[required]').forEach(function(field) {
+                if (!field.value || (field.tagName === 'SELECT' && field.value === '')) {
+                    field.classList.add('is-invalid');
+                    if (!firstInvalid) firstInvalid = field;
+                } else {
+                    field.classList.remove('is-invalid');
+                }
+            });
+            
+            if (firstInvalid) {
+                collegeFormError.style.display = 'block';
+                collegeFormError.textContent = 'Please fill in all required fields.';
+                firstInvalid.focus();
+                firstInvalid.scrollIntoView({behavior: 'smooth', block: 'center'});
+                return;
+            }
+            
+            // Submit form via AJAX
+            const formData = new FormData(collegeForm);
+            formData.append('type', 'College'); // Add the type field
+            
+            fetch('../../student_applications.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(html => {
+                // Check if submission was successful
+                if (html.includes('success') || html.includes('submitted')) {
+                    collegeFormSuccess.style.display = 'block';
+                    collegeFormSuccess.textContent = 'College application submitted successfully!';
+                    collegeForm.reset();
+                    // Reset dropdowns
+                    populateRegionSelect('college_region');
+                    updateProvince('college_region','college_province','college_city','college_barangay');
+                    
+                    // Refresh the pending applications table
+                    loadApplications('new', 'pendingTableBody', 'pendingCount');
+                } else {
+                    collegeFormError.style.display = 'block';
+                    collegeFormError.textContent = 'There was an error submitting the application. Please try again.';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                collegeFormError.style.display = 'block';
+                collegeFormError.textContent = 'There was an error submitting the application. Please try again.';
+            });
+        });
+    }
+});
+
+// Location dropdown functions for college registration
+function updateProvince(regionSelectId, provinceSelectId, citySelectId, barangaySelectId) {
+    const regionSelect = document.getElementById(regionSelectId);
+    const provinceSelect = document.getElementById(provinceSelectId);
+    const citySelect = document.getElementById(citySelectId);
+    const barangaySelect = document.getElementById(barangaySelectId);
+    
+    // Clear dependent dropdowns
+    provinceSelect.innerHTML = '<option value="" disabled selected>-- Select --</option>';
+    citySelect.innerHTML = '<option value="" disabled selected>-- Select --</option>';
+    barangaySelect.innerHTML = '<option value="" disabled selected>-- Select --</option>';
+    
+    const selectedRegion = regionSelect.value;
+    if (!selectedRegion) return;
+    
+    // Sample provinces for demonstration - replace with actual data
+    const provinces = {
+        'NCR': ['Metro Manila'],
+        'Region IV-A': ['Cavite', 'Laguna', 'Batangas', 'Rizal', 'Quezon']
+    };
+    
+    if (provinces[selectedRegion]) {
+        provinces[selectedRegion].forEach(province => {
+            const option = document.createElement('option');
+            option.value = province;
+            option.textContent = province;
+            provinceSelect.appendChild(option);
+        });
+    }
+}
+
+function updateCity(provinceSelectId, citySelectId, barangaySelectId) {
+    const provinceSelect = document.getElementById(provinceSelectId);
+    const citySelect = document.getElementById(citySelectId);
+    const barangaySelect = document.getElementById(barangaySelectId);
+    
+    // Clear dependent dropdowns
+    citySelect.innerHTML = '<option value="" disabled selected>-- Select --</option>';
+    barangaySelect.innerHTML = '<option value="" disabled selected>-- Select --</option>';
+    
+    const selectedProvince = provinceSelect.value;
+    if (!selectedProvince) return;
+    
+    // Sample cities for demonstration - replace with actual data
+    const cities = {
+        'Cavite': ['Dasmariñas', 'Imus', 'Bacoor', 'General Trias'],
+        'Metro Manila': ['Manila', 'Quezon City', 'Makati', 'Pasig']
+    };
+    
+    if (cities[selectedProvince]) {
+        cities[selectedProvince].forEach(city => {
+            const option = document.createElement('option');
+            option.value = city;
+            option.textContent = city;
+            citySelect.appendChild(option);
+        });
+    }
+}
+
+function updateBarangay(citySelectId, barangaySelectId) {
+    const citySelect = document.getElementById(citySelectId);
+    const barangaySelect = document.getElementById(barangaySelectId);
+    
+    // Clear barangay dropdown
+    barangaySelect.innerHTML = '<option value="" disabled selected>-- Select --</option>';
+    
+    const selectedCity = citySelect.value;
+    if (!selectedCity) return;
+    
+    // Sample barangays for demonstration - replace with actual data
+    const barangays = {
+        'Dasmariñas': ['Zone I', 'Zone II', 'Zone III', 'Zone IV'],
+        'Imus': ['Barangay I', 'Barangay II', 'Barangay III'],
+        'Bacoor': ['Molino I', 'Molino II', 'Molino III']
+    };
+    
+    if (barangays[selectedCity]) {
+        barangays[selectedCity].forEach(barangay => {
+            const option = document.createElement('option');
+            option.value = barangay;
+            option.textContent = barangay;
+            barangaySelect.appendChild(option);
+        });
+    }
+}
+
+function populateRegionSelect(regionSelectId) {
+    const regionSelect = document.getElementById(regionSelectId);
+    if (!regionSelect) return;
+    
+    // Clear existing options except the first one
+    regionSelect.innerHTML = '<option value="" disabled selected>-- Select --</option>';
+    
+    // Sample regions - replace with actual data
+    const regions = ['NCR', 'Region IV-A', 'Region IV-B'];
+    
+    regions.forEach(region => {
+        const option = document.createElement('option');
+        option.value = region;
+        option.textContent = region;
+        regionSelect.appendChild(option);
+    });
+}
+
 </script>
 </body>
 </html> 

@@ -18,17 +18,10 @@ $active_section = 'requirements';
 $error = '';
 $success = '';
 
-// Define required fields for College and SHS
+// Define required fields for SHS
 $required_fields = [
     // Common required fields
-    'course', 'last_name', 'first_name', 'dob', 'gender', 'civil_status', 'region', 'province', 'city', 'barangay', 'address', 'zip_code',
-];
-
-
-
-// Additional required fields for College only
-$college_required_fields = [
-    'student_type',
+    'last_name', 'first_name', 'dob', 'gender', 'civil_status', 'region', 'province', 'city', 'barangay', 'address', 'zip_code',
 ];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -40,46 +33,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     foreach ($required_fields as $field) {
         if (!isset($_POST[$field]) || trim($_POST[$field]) === '' || $_POST[$field] === '-- Select --') {
             $missing[] = $field;
-        }
-    }
-    
-    // Check if it's a college form and validate college-specific fields
-    $is_college_form = isset($_POST['course']);
-    
-    if ($is_college_form) {
-        foreach ($college_required_fields as $field) {
-            if (!isset($_POST[$field]) || trim($_POST[$field]) === '' || $_POST[$field] === '-- Select --') {
-                $missing[] = $field;
-            }
-        }
-        
-        // For college form, email and mobile are required
-        $college_contact_fields = ['email', 'mobile'];
-        foreach ($college_contact_fields as $field) {
-            if (!isset($_POST[$field]) || trim($_POST[$field]) === '') {
-                $missing[] = $field;
-            }
-        }
-        
-        // For college form, educational background fields are required based on student type
-        if (isset($_POST['student_type'])) {
-            if ($_POST['student_type'] === 'New') {
-                // For new students: primary and secondary education required
-                $new_required_fields = ['elementary_school', 'elementary_year_grad', 'high_school', 'high_year_grad'];
-                foreach ($new_required_fields as $field) {
-                    if (!isset($_POST[$field]) || trim($_POST[$field]) === '' || $_POST[$field] === '-- Select --') {
-                        $missing[] = $field;
-                    }
-                }
-            } elseif ($_POST['student_type'] === 'Transferee') {
-                // For transferees: primary, secondary, and tertiary school required (but not year and course)
-                $transferee_required_fields = ['elementary_school', 'elementary_year_grad', 'high_school', 'high_year_grad', 'tertiary_school'];
-                foreach ($transferee_required_fields as $field) {
-                    if (!isset($_POST[$field]) || trim($_POST[$field]) === '' || $_POST[$field] === '-- Select --') {
-                        $missing[] = $field;
-                    }
-                }
-            }
         }
     }
     
@@ -98,7 +51,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     if (count($missing) > 0) {
         $error = 'Please fill in all required fields: ' . implode(', ', $missing);
-        $active_section = 'college';
     } else {
         // List of all columns in your table that can be filled by the form
         $columns = [
@@ -116,11 +68,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $name = trim(($_POST['last_name'] ?? '') . ', ' . ($_POST['first_name'] ?? '') . ' ' . ($_POST['middle_name'] ?? '') . ' ' . ($_POST['suffix'] ?? ''));
         $_POST['name'] = $name;
         
-        // Set course_or_track based on form type
-        if (isset($_POST['course'])) {
-            $_POST['course_or_track'] = $_POST['course'];
-            $_POST['type'] = 'College';
-        }
+        // Set type for SHS applications
+        $_POST['type'] = 'SHS';
         
         // Handle checkboxes and defaults
         foreach(['is_working','work_in_shifts','family_connected_ncst','father_deceased','mother_deceased'] as $cb) {
@@ -163,16 +112,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Debug: Log success
                 error_log("Application submitted successfully with tracking number: " . $tracking_number);
                 
-                // Set active section based on form type
-                $active_section = 'college';
             } else {
                 $error = 'Database error: ' . $stmt->error;
-                $active_section = 'college';
             }
             $stmt->close();
         } else {
             $error = 'Database error: ' . $conn->error;
-            $active_section = 'college';
         }
         
         // Debug: Log any errors
@@ -430,7 +375,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <a class="nav-link active" id="nav-req" href="#" onclick="showSidebarSection('requirements')"><i class="bi bi-list-check"></i> Requirements</a>
                 </li>
                 <li class="nav-item mb-2">
-                    <a class="nav-link" id="nav-college" href="#" onclick="showSidebarSection('college')"><i class="bi bi-mortarboard"></i> College</a>
+    
                 </li>
             </ul>
         </div>
@@ -451,7 +396,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <a class="nav-link active" id="nav-req-mobile" href="#" onclick="showSidebarSection('requirements'); var offcanvas = bootstrap.Offcanvas.getOrCreateInstance(document.getElementById('sidebarMenu')); offcanvas.hide();"><i class="bi bi-list-check"></i> Requirements</a>
               </li>
               <li class="nav-item mb-2">
-                <a class="nav-link" id="nav-college-mobile" href="#" onclick="showSidebarSection('college'); var offcanvas = bootstrap.Offcanvas.getOrCreateInstance(document.getElementById('sidebarMenu')); offcanvas.hide();"><i class="bi bi-mortarboard"></i> College</a>
+
               </li>
             </ul>
           </div>
@@ -465,7 +410,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="col-md-6">
                             <div class="card border-primary h-100">
                                 <div class="card-body">
-                                    <h5 class="card-title text-primary">College Freshmen</h5>
+                                    <h5 class="card-title text-primary">SHS Students</h5>
                                     <ul class="mb-0">
                                         <li>Properly accomplished admission form</li>
                                         <li>Four (4) 2x2 recent, identical color pictures in white background with name tag</li>
@@ -498,346 +443,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 </div>
 
-                <!-- College Registration Section (updated to match screenshot) -->
-                <div id="section-college" style="display:block;">
-                  <div class="row justify-content-center">
-                    <div class="col-lg-10">
-                      <div class="card border-primary mb-4">
-                        <div class="card-body">
-                          <h4 class="card-title text-primary mb-4">College Registration</h4>
-                          <!-- Above College form -->
-                          <div id="collegeFormError" class="alert alert-danger" style="display:none;"></div>
-                          <form id="collegeForm" method="POST" action="">
-                            <h5 class="bg-info text-white p-2 rounded">Desired Course</h5>
-                            <div class="mb-3">
-                              <label class="form-label">Desired Course</label>
-                              <select class="form-select" name="course" required>
-                                <option value="" selected disabled>-- Select --</option>
-                                <option value="BSIT" <?= (isset($_POST['course']) && $_POST['course']=='BSIT') ? 'selected' : '' ?>>BSIT</option>
-                                <option value="BSCS" <?= (isset($_POST['course']) && $_POST['course']=='BSCS') ? 'selected' : '' ?>>BSCS</option>
-                                <option value="BSBA" <?= (isset($_POST['course']) && $_POST['course']=='BSBA') ? 'selected' : '' ?>>BSBA</option>
-                                <option value="BSHM" <?= (isset($_POST['course']) && $_POST['course']=='BSHM') ? 'selected' : '' ?>>BSHM</option>
-                                <option value="BSTM" <?= (isset($_POST['course']) && $_POST['course']=='BSTM') ? 'selected' : '' ?>>BSTM</option>
-                                <option value="BSPSYCH" <?= (isset($_POST['course']) && $_POST['course']=='BSPSYCH') ? 'selected' : '' ?>>BSPSYCH</option>
-                                <option value="BSCRIM" <?= (isset($_POST['course']) && $_POST['course']=='BSCRIM') ? 'selected' : '' ?>>BSCRIM</option>
-                              </select>
-                            </div>
-                            <h5 class="bg-info text-white p-2 rounded">Personal Information</h5>
-                            <div class="row mb-3">
-                              <div class="col-md-3"><label class="form-label">Family Name</label><input type="text" class="form-control" name="last_name" required value="<?= htmlspecialchars($_POST['last_name'] ?? '') ?>"></div>
-                              <div class="col-md-3"><label class="form-label">Given Name</label><input type="text" class="form-control" name="first_name" required value="<?= htmlspecialchars($_POST['first_name'] ?? '') ?>"></div>
-                              <div class="col-md-3"><label class="form-label">Middle Name</label><input type="text" class="form-control" name="middle_name" value="<?= htmlspecialchars($_POST['middle_name'] ?? '') ?>"></div>
-                              <div class="col-md-3"><label class="form-label">Suffix</label><input type="text" class="form-control" name="suffix" value="<?= htmlspecialchars($_POST['suffix'] ?? '') ?>"></div>
-                            </div>
-                            <div class="row mb-3">
-                              <div class="col-md-3"><label class="form-label">Date Of Birth</label><input type="date" class="form-control" name="dob" required value="<?= htmlspecialchars($_POST['dob'] ?? '') ?>"></div>
-                              <div class="col-md-3"><label class="form-label">Place of Birth</label><input type="text" class="form-control" name="pob" value="<?= htmlspecialchars($_POST['pob'] ?? '') ?>"></div>
-                              <div class="col-md-3"><label class="form-label">Gender</label>
-                                <select class="form-select" name="gender" required>
-                                  <option value="" disabled>-- Select --</option>
-                                  <option value="Male" <?= (isset($_POST['gender']) && $_POST['gender']=='Male') ? 'selected' : '' ?>>Male</option>
-                                  <option value="Female" <?= (isset($_POST['gender']) && $_POST['gender']=='Female') ? 'selected' : '' ?>>Female</option>
-                                </select>
-                              </div>
-                            </div>
-                            <div class="row mb-3">
-                              <div class="col-md-3"><label class="form-label">Civil Status</label>
-                                <select class="form-select" name="civil_status" required>
-                                  <option value="" disabled>-- Select --</option>
-                                  <option value="Single" <?= (isset($_POST['civil_status']) && $_POST['civil_status']=='Single') ? 'selected' : '' ?>>Single</option>
-                                  <option value="Married" <?= (isset($_POST['civil_status']) && $_POST['civil_status']=='Married') ? 'selected' : '' ?>>Married</option>
-                                  <option value="Widowed" <?= (isset($_POST['civil_status']) && $_POST['civil_status']=='Widowed') ? 'selected' : '' ?>>Widowed</option>
-                                  <option value="Separated" <?= (isset($_POST['civil_status']) && $_POST['civil_status']=='Separated') ? 'selected' : '' ?>>Separated</option>
-                                  <option value="Annulled" <?= (isset($_POST['civil_status']) && $_POST['civil_status']=='Annulled') ? 'selected' : '' ?>>Annulled</option>
-                                  <option value="Divorced" <?= (isset($_POST['civil_status']) && $_POST['civil_status']=='Divorced') ? 'selected' : '' ?>>Divorced</option>
-                                </select>
-                              </div>
-                              <div class="col-md-3"><label class="form-label">Mobile No</label><input type="text" class="form-control" name="mobile" required value="<?= htmlspecialchars($_POST['mobile'] ?? '') ?>"></div>
-                              <div class="col-md-3"><label class="form-label">Land Line</label><input type="text" class="form-control" name="landline" value="<?= htmlspecialchars($_POST['landline'] ?? '') ?>"></div>
-                              <div class="col-md-3"><label class="form-label">Email Address</label><input type="email" class="form-control" name="email" required value="<?= htmlspecialchars($_POST['email'] ?? '') ?>"></div>
-                            </div>
-                            <div class="row mb-3">
-                              <div class="col-md-10"><label class="form-label">Complete Address</label><input type="text" class="form-control" name="address" required value="<?= htmlspecialchars($_POST['address'] ?? '') ?>"></div>
-                              <div class="col-md-2"><label class="form-label">Zip Code</label><input type="text" class="form-control" name="zip_code" required value="<?= htmlspecialchars($_POST['zip_code'] ?? '') ?>"></div>
-                            </div>
-                            <!-- Sample data for dynamic dropdowns -->
-                          
-                            <!-- College Form Dynamic Dropdowns -->
-                            <div class="row mb-3">
-                              <div class="col-md-3">
-                                <label class="form-label">Region</label>
-                                <select class="form-select" name="region" id="college_region" required onchange="updateProvince('college_region','college_province','college_city','college_barangay')">
-                                  <option value="" disabled selected>-- Select --</option>
-                                </select>
-                              </div>
-                              <div class="col-md-3">
-                                <label class="form-label">Province</label>
-                                <select class="form-select" name="province" id="college_province" required onchange="updateCity('college_province','college_city','college_barangay')">
-                                  <option value="" disabled>-- Select --</option>
-                                </select>
-                              </div>
-                              <div class="col-md-3">
-                                <label class="form-label">Town/Municipality/City</label>
-                                <select class="form-select" name="city" id="college_city" required onchange="updateBarangay('college_city','college_barangay')">
-                                  <option value="" disabled>-- Select --</option>
-                                </select>
-                              </div>
-                              <div class="col-md-3">
-                                <label class="form-label">Barangay</label>
-                                <select class="form-select" name="barangay" id="college_barangay" required>
-                                  <option value="" disabled>-- Select --</option>
-                                </select>
-                              </div>
-                            </div>
-                            
-                            <!-- Educational Information Section (College only - Primary, Secondary, Tertiary) -->
-                            <h5 class="bg-info text-white p-2 rounded">Educational Information</h5>
-                            <div class="row mb-3">
-                              <div class="col-md-6">
-                                <label class="form-label">Primary School</label>
-                                <select class="form-select" name="elementary_school" id="elementary_school">
-                                  <option value="" selected>-- Select --</option>
-                                  <option value="Dasmariñas Elementary School" <?= (isset($_POST['elementary_school']) && $_POST['elementary_school']=='Dasmariñas Elementary School') ? 'selected' : '' ?>>Dasmariñas Elementary School</option>
-                                  <option value="Imus Central School" <?= (isset($_POST['elementary_school']) && $_POST['elementary_school']=='Imus Central School') ? 'selected' : '' ?>>Imus Central School</option>
-                                  <option value="Bacoor Elementary School" <?= (isset($_POST['elementary_school']) && $_POST['elementary_school']=='Bacoor Elementary School') ? 'selected' : '' ?>>Bacoor Elementary School</option>
-                                  <option value="Other" <?= (isset($_POST['elementary_school']) && $_POST['elementary_school']=='Other') ? 'selected' : '' ?>>Other</option>
-                                </select>
-                              </div>
-                              <div class="col-md-3">
-                                <label class="form-label">Year Graduated</label>
-                                <input type="text" class="form-control" name="elementary_year_grad" id="elementary_year_grad" value="<?= htmlspecialchars($_POST['elementary_year_grad'] ?? '') ?>">
-                              </div>
-                            </div>
-                            <div class="row mb-3">
-                              <div class="col-md-6">
-                                <label class="form-label">Secondary School</label>
-                                <select class="form-select" name="high_school" id="high_school">
-                                  <option value="" selected>-- Select --</option>
-                                  <option value="Dasmariñas National High School" <?= (isset($_POST['high_school']) && $_POST['high_school']=='Dasmariñas National High School') ? 'selected' : '' ?>>Dasmariñas National High School</option>
-                                  <option value="Imus National High School" <?= (isset($_POST['high_school']) && $_POST['high_school']=='Imus National High School') ? 'selected' : '' ?>>Imus National High School</option>
-                                  <option value="Bacoor National High School" <?= (isset($_POST['high_school']) && $_POST['high_school']=='Bacoor National High School') ? 'selected' : '' ?>>Bacoor National High School</option>
-                                  <option value="Other" <?= (isset($_POST['high_school']) && $_POST['high_school']=='Other') ? 'selected' : '' ?>>Other</option>
-                                </select>
-                              </div>
-                              <div class="col-md-3">
-                                <label class="form-label">Year Graduated</label>
-                                <input type="text" class="form-control" name="high_year_grad" id="high_year_grad" value="<?= htmlspecialchars($_POST['high_year_grad'] ?? '') ?>">
-                              </div>
-                            </div>
-                            <div class="row mb-3">
-                              <div class="col-md-6">
-                                <label class="form-label">Tertiary School</label>
-                                <select class="form-select" name="tertiary_school" id="tertiary_school">
-                                  <option value="" selected>-- Select --</option>
-                                  <option value="NCST" <?= (isset($_POST['tertiary_school']) && $_POST['tertiary_school']=='NCST') ? 'selected' : '' ?>>NCST</option>
-                                  <option value="De La Salle University" <?= (isset($_POST['tertiary_school']) && $_POST['tertiary_school']=='De La Salle University') ? 'selected' : '' ?>>De La Salle University</option>
-                                  <option value="University of the Philippines" <?= (isset($_POST['tertiary_school']) && $_POST['tertiary_school']=='University of the Philippines') ? 'selected' : '' ?>>University of the Philippines</option>
-                                  <option value="Other" <?= (isset($_POST['tertiary_school']) && $_POST['tertiary_school']=='Other') ? 'selected' : '' ?>>Other</option>
-                                </select>
-                              </div>
-                              <div class="col-md-3">
-                                <label class="form-label">Year Graduated</label>
-                                <input type="text" class="form-control" name="tertiary_year_grad" id="tertiary_year_grad" value="<?= htmlspecialchars($_POST['tertiary_year_grad'] ?? '') ?>">
-                              </div>
-                              <div class="col-md-3">
-                                <label class="form-label">Course Graduated</label>
-                                <input type="text" class="form-control" name="course_graduated" id="course_graduated" value="<?= htmlspecialchars($_POST['course_graduated'] ?? '') ?>">
-                              </div>
-                            </div>
 
-
-                            <div class="row mb-3">
-                              <div class="col-md-6">
-                                <label class="form-label">Educational Plan</label>
-                                <select class="form-select" name="educational_plan">
-                                  <option value="" selected>-- Select --</option>
-                                  <option value="Academic eXentials" <?= (isset($_POST['educational_plan']) && $_POST['educational_plan']=='Academic eXentials') ? 'selected' : '' ?>>Academic eXentials</option>
-                                  <option value="Academix" <?= (isset($_POST['educational_plan']) && $_POST['educational_plan']=='Academix') ? 'selected' : '' ?>>Academix</option>
-                                  <option value="AXA" <?= (isset($_POST['educational_plan']) && $_POST['educational_plan']=='AXA') ? 'selected' : '' ?>>AXA</option>
-                                  <option value="BDO Life" <?= (isset($_POST['educational_plan']) && $_POST['educational_plan']=='BDO Life') ? 'selected' : '' ?>>BDO Life</option>
-                                  <option value="CAP Pension Plan" <?= (isset($_POST['educational_plan']) && $_POST['educational_plan']=='CAP Pension Plan') ? 'selected' : '' ?>>CAP Pension Plan</option>
-                                  <option value="Insular Life" <?= (isset($_POST['educational_plan']) && $_POST['educational_plan']=='Insular Life') ? 'selected' : '' ?>>Insular Life</option>
-                                  <option value="Manulife Education Plan" <?= (isset($_POST['educational_plan']) && $_POST['educational_plan']=='Manulife Education Plan') ? 'selected' : '' ?>>Manulife Education Plan</option>
-                                  <option value="Pru Life UK" <?= (isset($_POST['educational_plan']) && $_POST['educational_plan']=='Pru Life UK') ? 'selected' : '' ?>>Pru Life UK</option>
-                                  <option value="SSS Educational Assistance" <?= (isset($_POST['educational_plan']) && $_POST['educational_plan']=='SSS Educational Assistance') ? 'selected' : '' ?>>SSS Educational Assistance</option>
-                                  <option value="Sun Life Education Plan" <?= (isset($_POST['educational_plan']) && $_POST['educational_plan']=='Sun Life Education Plan') ? 'selected' : '' ?>>Sun Life Education Plan</option>
-                                </select>
-                              </div>
-                              <div class="col-md-6">
-                                <label class="form-label">Academic Achievement</label>
-                                <select class="form-select" name="academic_achievement">
-                                  <option value="" selected>-- Select --</option>
-                                  <option value="Honorable Mention" <?= (isset($_POST['academic_achievement']) && $_POST['academic_achievement']=='Honorable Mention') ? 'selected' : '' ?>>Honorable Mention</option>
-                                  <option value="Salutatorian" <?= (isset($_POST['academic_achievement']) && $_POST['academic_achievement']=='Salutatorian') ? 'selected' : '' ?>>Salutatorian</option>
-                                  <option value="Valedictorian" <?= (isset($_POST['academic_achievement']) && $_POST['academic_achievement']=='Valedictorian') ? 'selected' : '' ?>>Valedictorian</option>
-                                </select>
-                              </div>
-                            </div>
-                            <!-- Work Information Section (no dropdowns, just checkboxes and text) -->
-                            <h5 class="bg-info text-white p-2 rounded">Work Information</h5>
-                            <div class="row mb-3 align-items-center">
-                              <div class="col-md-2"><label class="form-label">Working?</label>
-                                <input type="hidden" name="is_working" value="0">
-                                <input type="checkbox" class="form-check-input ms-2" name="is_working" value="1" <?= (isset($_POST['is_working']) && $_POST['is_working']) ? 'checked' : '' ?>>
-                              </div>
-                              <div class="col-md-4"><label class="form-label">Employer</label><input type="text" class="form-control" name="employer" value="<?= htmlspecialchars($_POST['employer'] ?? '') ?>"></div>
-                              <div class="col-md-2"><label class="form-label">Work in Shifts?</label>
-                                <input type="hidden" name="work_in_shifts" value="0">
-                                <input type="checkbox" class="form-check-input ms-2" name="work_in_shifts" value="1" <?= (isset($_POST['work_in_shifts']) && $_POST['work_in_shifts']) ? 'checked' : '' ?>>
-                              </div>
-                              <div class="col-md-4"><label class="form-label">Work Position</label><input type="text" class="form-control" name="work_position" value="<?= htmlspecialchars($_POST['work_position'] ?? '') ?>"></div>
-                            </div>
-                            <!-- Family Connected to NCST Section -->
-                            <h5 class="bg-info text-white p-2 rounded">Family Connected to NCST</h5>
-                            <div class="row mb-3 align-items-center">
-                              <div class="col-md-2"><label class="form-label">NCST Student</label>
-                                <input type="hidden" name="family_connected_ncst" value="0">
-                                <input type="checkbox" class="form-check-input ms-2" name="family_connected_ncst" value="1" <?= (isset($_POST['family_connected_ncst']) && $_POST['family_connected_ncst']) ? 'checked' : '' ?>>
-                              </div>
-                              <div class="col-md-2"><label class="form-label">No of Siblings</label><input type="number" class="form-control" name="no_of_siblings" value="<?= htmlspecialchars($_POST['no_of_siblings'] ?? '') ?>"></div>
-                              <div class="col-md-2"><label class="form-label">NCST Employee</label>
-                                <input type="hidden" name="ncst_employee" value="0">
-                                <input type="checkbox" class="form-check-input ms-2" name="ncst_employee" value="1" <?= (isset($_POST['ncst_employee']) && $_POST['ncst_employee']) ? 'checked' : '' ?>>
-                              </div>
-                              <div class="col-md-3"><label class="form-label">Relationship</label>
-                                <select class="form-select" name="ncst_relationship">
-                                  <option value="" selected>-- Select --</option>
-                                  <option value="Aunt-NCST Employee" <?= (isset($_POST['ncst_relationship']) && $_POST['ncst_relationship']=='Aunt-NCST Employee') ? 'selected' : '' ?>>Aunt-NCST Employee</option>
-                                  <option value="Brother-NCST Employee" <?= (isset($_POST['ncst_relationship']) && $_POST['ncst_relationship']=='Brother-NCST Employee') ? 'selected' : '' ?>>Brother-NCST Employee</option>
-                                  <option value="Father-NCST Employee" <?= (isset($_POST['ncst_relationship']) && $_POST['ncst_relationship']=='Father-NCST Employee') ? 'selected' : '' ?>>Father-NCST Employee</option>
-                                  <option value="Mother-NCST Employee" <?= (isset($_POST['ncst_relationship']) && $_POST['ncst_relationship']=='Mother-NCST Employee') ? 'selected' : '' ?>>Mother-NCST Employee</option>
-                                  <option value="No NCST Relations" <?= (isset($_POST['ncst_relationship']) && $_POST['ncst_relationship']=='No NCST Relations') ? 'selected' : '' ?>>No NCST Relations</option>
-                                  <option value="Sister-NCST Employee" <?= (isset($_POST['ncst_relationship']) && $_POST['ncst_relationship']=='Sister-NCST Employee') ? 'selected' : '' ?>>Sister-NCST Employee</option>
-                                  <option value="Uncle-NCST Employee" <?= (isset($_POST['ncst_relationship']) && $_POST['ncst_relationship']=='Uncle-NCST Employee') ? 'selected' : '' ?>>Uncle-NCST Employee</option>
-                                </select>
-                              </div>
-                            </div>
-
-                            <!-- How did Student come to know about NCST? -->
-                            <h5 class="bg-info text-white p-2 rounded">How did Student come to know about NCST?</h5>
-                            <div class="mb-3">
-                              <select class="form-select" name="how_did_you_know_ncst">
-                                <option value="" selected>-- Select --</option>
-                                <option value="CareerTalk" <?= (isset($_POST['how_did_you_know_ncst']) && $_POST['how_did_you_know_ncst']=='CareerTalk') ? 'selected' : '' ?>>CareerTalk</option>
-                                <option value="Posters" <?= (isset($_POST['how_did_you_know_ncst']) && $_POST['how_did_you_know_ncst']=='Posters') ? 'selected' : '' ?>>Posters</option>
-                                <option value="Leaflets" <?= (isset($_POST['how_did_you_know_ncst']) && $_POST['how_did_you_know_ncst']=='Leaflets') ? 'selected' : '' ?>>Leaflets</option>
-                                <option value="Friends/Relatives" <?= (isset($_POST['how_did_you_know_ncst']) && $_POST['how_did_you_know_ncst']=='Friends/Relatives') ? 'selected' : '' ?>>Friends/Relatives</option>
-                                <option value="Billboards/Streamers" <?= (isset($_POST['how_did_you_know_ncst']) && $_POST['how_did_you_know_ncst']=='Billboards/Streamers') ? 'selected' : '' ?>>Billboards/Streamers</option>
-                                <option value="Others" <?= (isset($_POST['how_did_you_know_ncst']) && $_POST['how_did_you_know_ncst']=='Others') ? 'selected' : '' ?>>Others</option>
-                              </select>
-                            </div>
-                            <!-- Other Information Section -->
-                            <h5 class="bg-info text-white p-2 rounded">Other Information</h5>
-                            <div class="mb-3">
-                              <label class="form-label">Student Type</label>
-                              <select class="form-select" name="student_type" id="student_type" required onchange="toggleEducationalFields()">
-                                <option value="" selected disabled>-- Select --</option>
-                                <option value="New" <?= (isset($_POST['student_type']) && $_POST['student_type']=='New') ? 'selected' : '' ?>>New</option>
-                                <option value="Transferee" <?= (isset($_POST['student_type']) && $_POST['student_type']=='Transferee') ? 'selected' : '' ?>>Transferee</option>
-                                <option value="Returnee" <?= (isset($_POST['student_type']) && $_POST['student_type']=='Returnee') ? 'selected' : '' ?>>Returnee</option>
-                                <option value="Foreign" <?= (isset($_POST['student_type']) && $_POST['student_type']=='Foreign') ? 'selected' : '' ?>>Foreign</option>
-                                <option value="ALS Graduate" <?= (isset($_POST['student_type']) && $_POST['student_type']=='ALS Graduate') ? 'selected' : '' ?>>ALS Graduate</option>
-                                <option value="DTS Student" <?= (isset($_POST['student_type']) && $_POST['student_type']=='DTS Student') ? 'selected' : '' ?>>DTS Student</option>
-                                <option value="Cross Enrollee" <?= (isset($_POST['student_type']) && $_POST['student_type']=='Cross Enrollee') ? 'selected' : '' ?>>Cross Enrollee</option>
-                              </select>
-                            </div>
-                            <!-- Parent/Guardian Information Section (no dropdowns, just text fields and checkboxes) -->
-                            <h5 class="bg-info text-white p-2 rounded">Parent/Guardian Information</h5>
-                            <div class="row mb-3">
-                              <div class="col-md-3"><label class="form-label">Father Family Name</label><input type="text" class="form-control" name="father_family_name" value="<?= htmlspecialchars($_POST['father_family_name'] ?? '') ?>"></div>
-                              <div class="col-md-3"><label class="form-label">Father Given Name</label><input type="text" class="form-control" name="father_given_name" value="<?= htmlspecialchars($_POST['father_given_name'] ?? '') ?>"></div>
-                              <div class="col-md-3"><label class="form-label">Father Middle Name</label><input type="text" class="form-control" name="father_middle_name" value="<?= htmlspecialchars($_POST['father_middle_name'] ?? '') ?>"></div>
-                              <div class="col-md-3 d-flex align-items-end">
-                                <div class="form-check">
-                                  <input class="form-check-input" type="checkbox" name="father_deceased" id="father_deceased" <?= (isset($_POST['father_deceased']) && $_POST['father_deceased']) ? 'checked' : '' ?>>
-                                  <label class="form-check-label" for="father_deceased">Deceased?</label>
-                                </div>
-                              </div>
-                            </div>
-                            <div class="mb-3"><label class="form-label">Father's Complete Address</label><input type="text" class="form-control" name="father_address" value="<?= htmlspecialchars($_POST['father_address'] ?? '') ?>"></div>
-                            <div class="row mb-3">
-                              <div class="col-md-3"><label class="form-label">Father's Mobile No</label><input type="text" class="form-control" name="father_mobile" value="<?= htmlspecialchars($_POST['father_mobile'] ?? '') ?>"></div>
-                              <div class="col-md-3"><label class="form-label">Father's Land Line</label><input type="text" class="form-control" name="father_landline" value="<?= htmlspecialchars($_POST['father_landline'] ?? '') ?>"></div>
-                              <div class="col-md-3"><label class="form-label">Father's Occupation</label><input type="text" class="form-control" name="father_occupation" value="<?= htmlspecialchars($_POST['father_occupation'] ?? '') ?>"></div>
-                            </div>
-                            <hr>
-                            <div class="row mb-3">
-                              <div class="col-md-3"><label class="form-label">Mother Family Name</label><input type="text" class="form-control" name="mother_family_name" value="<?= htmlspecialchars($_POST['mother_family_name'] ?? '') ?>"></div>
-                              <div class="col-md-3"><label class="form-label">Mother Given Name</label><input type="text" class="form-control" name="mother_given_name" value="<?= htmlspecialchars($_POST['mother_given_name'] ?? '') ?>"></div>
-                              <div class="col-md-3"><label class="form-label">Mother Middle Name</label><input type="text" class="form-control" name="mother_middle_name" value="<?= htmlspecialchars($_POST['mother_middle_name'] ?? '') ?>"></div>
-                              <div class="col-md-3 d-flex align-items-end">
-                                <div class="form-check">
-                                  <input class="form-check-input" type="checkbox" name="mother_deceased" id="mother_deceased" <?= (isset($_POST['mother_deceased']) && $_POST['mother_deceased']) ? 'checked' : '' ?>>
-                                  <label class="form-check-label" for="mother_deceased">Deceased?</label>
-                                </div>
-                              </div>
-                            </div>
-                            <div class="row mb-3">
-                              <div class="col-md-4"><label class="form-label">Mother Maiden Family Name</label><input type="text" class="form-control" name="mother_maiden_family_name" value="<?= htmlspecialchars($_POST['mother_maiden_family_name'] ?? '') ?>"></div>
-                              <div class="col-md-4"><label class="form-label">Mother Maiden Given Name</label><input type="text" class="form-control" name="mother_maiden_given_name" value="<?= htmlspecialchars($_POST['mother_maiden_given_name'] ?? '') ?>"></div>
-                              <div class="col-md-4"><label class="form-label">Mother Maiden Middle Name</label><input type="text" class="form-control" name="mother_maiden_middle_name" value="<?= htmlspecialchars($_POST['mother_maiden_middle_name'] ?? '') ?>"></div>
-                            </div>
-                            <div class="mb-3"><label class="form-label">Mother's Complete Address</label><input type="text" class="form-control" name="mother_address" value="<?= htmlspecialchars($_POST['mother_address'] ?? '') ?>"></div>
-                            <div class="row mb-3">
-                              <div class="col-md-3"><label class="form-label">Mother's Mobile No</label><input type="text" class="form-control" name="mother_mobile" value="<?= htmlspecialchars($_POST['mother_mobile'] ?? '') ?>"></div>
-                              <div class="col-md-3"><label class="form-label">Mother's Land Line</label><input type="text" class="form-control" name="mother_landline" value="<?= htmlspecialchars($_POST['mother_landline'] ?? '') ?>"></div>
-                              <div class="col-md-3"><label class="form-label">Mother's Occupation</label><input type="text" class="form-control" name="mother_occupation" value="<?= htmlspecialchars($_POST['mother_occupation'] ?? '') ?>"></div>
-                            </div>
-                            <hr>
-                            <h5 class="bg-info text-white p-2 rounded">Guardian Information</h5>
-                            <div class="row mb-3">
-                              <div class="col-md-3">
-                                <label class="form-label">Guardian Family Name</label>
-                                <input type="text" class="form-control <?php if(isset($missing) && in_array('guardian_family_name', $missing)) echo 'is-invalid'; ?>" name="guardian_family_name" value="<?= htmlspecialchars($_POST['guardian_family_name'] ?? '') ?>">
-                              </div>
-                              <div class="col-md-3">
-                                <label class="form-label">Guardian Given Name</label>
-                                <input type="text" class="form-control <?php if(isset($missing) && in_array('guardian_given_name', $missing)) echo 'is-invalid'; ?>" name="guardian_given_name" value="<?= htmlspecialchars($_POST['guardian_given_name'] ?? '') ?>">
-                              </div>
-                              <div class="col-md-3">
-                                <label class="form-label">Guardian Middle Name</label>
-                                <input type="text" class="form-control" name="guardian_middle_name" value="<?= htmlspecialchars($_POST['guardian_middle_name'] ?? '') ?>">
-                              </div>
-                              <div class="col-md-3">
-                                <label class="form-label">Relationship</label>
-                                <select class="form-select <?php if(isset($missing) && in_array('guardian_relationship', $missing)) echo 'is-invalid'; ?>" name="guardian_relationship">
-                                  <option value="" disabled <?= !isset($_POST['guardian_relationship']) ? 'selected' : '' ?>>-- Select --</option>
-                                  <option value="Father" <?= (isset($_POST['guardian_relationship']) && $_POST['guardian_relationship']=='Father') ? 'selected' : '' ?>>Father</option>
-                                  <option value="Mother" <?= (isset($_POST['guardian_relationship']) && $_POST['guardian_relationship']=='Mother') ? 'selected' : '' ?>>Mother</option>
-                                  <option value="Sibling" <?= (isset($_POST['guardian_relationship']) && $_POST['guardian_relationship']=='Sibling') ? 'selected' : '' ?>>Sibling</option>
-                                  <option value="Relative" <?= (isset($_POST['guardian_relationship']) && $_POST['guardian_relationship']=='Relative') ? 'selected' : '' ?>>Relative</option>
-                                  <option value="Other" <?= (isset($_POST['guardian_relationship']) && $_POST['guardian_relationship']=='Other') ? 'selected' : '' ?>>Other</option>
-                                </select>
-                              </div>
-                            </div>
-                            <div class="mb-3">
-                              <label class="form-label">Complete Address</label>
-                              <input type="text" class="form-control <?php if(isset($missing) && in_array('guardian_address', $missing)) echo 'is-invalid'; ?>" name="guardian_address" value="<?= htmlspecialchars($_POST['guardian_address'] ?? '') ?>">
-                            </div>
-                            <div class="row mb-3">
-                              <div class="col-md-3">
-                                <label class="form-label">Mobile No</label>
-                                <input type="text" class="form-control <?php if(isset($missing) && in_array('guardian_mobile', $missing)) echo 'is-invalid'; ?>" name="guardian_mobile" value="<?= htmlspecialchars($_POST['guardian_mobile'] ?? '') ?>">
-                              </div>
-                              <div class="col-md-3">
-                                <label class="form-label">Landline</label>
-                                <input type="text" class="form-control" name="guardian_landline" value="<?= htmlspecialchars($_POST['guardian_landline'] ?? '') ?>">
-                              </div>
-                              <div class="col-md-3">
-                                <label class="form-label">Occupation</label>
-                                <input type="text" class="form-control <?php if(isset($missing) && in_array('guardian_occupation', $missing)) echo 'is-invalid'; ?>" name="guardian_occupation" value="<?= htmlspecialchars($_POST['guardian_occupation'] ?? '') ?>">
-                              </div>
-                            </div>
-                            <div class="mb-3 text-end">
-                              <button type="submit" class="btn btn-warning fw-bold" style="color: #003399;">Submit</button>
-                              <button type="reset" class="btn btn-danger text-white ms-2">Cancel</button>
-                            </div>
-                          </form>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
             </main>
         </div>
     </div>
@@ -855,9 +461,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script>
         function showSidebarSection(section) {
             document.getElementById('section-requirements').style.display = (section === 'requirements') ? 'block' : 'none';
-            document.getElementById('section-college').style.display = (section === 'college') ? 'block' : 'none';
+    
             document.getElementById('nav-req').classList.toggle('active', section === 'requirements');
-            document.getElementById('nav-college').classList.toggle('active', section === 'college');
+
         }
         // Default to requirements, but override if PHP says so
         <?php if (isset($active_section)): ?>
@@ -1156,98 +762,11 @@ function resetAllDropdowns(form) {
 }
 
 // Repopulate selects after POST
-document.addEventListener('DOMContentLoaded', function() {
-  // College
-  <?php if (isset($_POST['region'])): ?>
-    document.getElementById('college_region').value = "<?= addslashes($_POST['region']) ?>";
-    updateProvince('college_region','college_province','college_city','college_barangay');
-    <?php if (isset($_POST['province'])): ?>
-      document.getElementById('college_province').value = "<?= addslashes($_POST['province']) ?>";
-      updateCity('college_province','college_city','college_barangay');
-      <?php if (isset($_POST['city'])): ?>
-        document.getElementById('college_city').value = "<?= addslashes($_POST['city']) ?>";
-        updateBarangay('college_city','college_barangay');
-        <?php if (isset($_POST['barangay'])): ?>
-          document.getElementById('college_barangay').value = "<?= addslashes($_POST['barangay']) ?>";
-        <?php endif; ?>
-      <?php endif; ?>
-    <?php endif; ?>
-  <?php endif; ?>
-});
+
 </script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  populateRegionSelect('college_region');
-});
+
 </script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  // For College form
-  var collegeForm = document.getElementById('collegeForm');
-  var collegeFormError = document.getElementById('collegeFormError');
-  if (collegeForm) {
-    console.log('College Form found and event listener added');
-    collegeForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-      console.log('College Form submitted');
-      // Validate required fields before AJAX
-      let firstInvalid = null;
-      collegeForm.querySelectorAll('[required]').forEach(function(field) {
-        if (!field.value || (field.tagName === 'SELECT' && field.value === '')) {
-          field.classList.add('is-invalid');
-          if (!firstInvalid) firstInvalid = field;
-        } else {
-          field.classList.remove('is-invalid');
-        }
-      });
-      if (firstInvalid) {
-        collegeFormError.style.display = 'block';
-        collegeFormError.textContent = 'Please fill in all required fields.';
-        firstInvalid.focus();
-        firstInvalid.scrollIntoView({behavior: 'smooth', block: 'center'});
-        return; // Stop AJAX if invalid
-      } else {
-        collegeFormError.style.display = 'none';
-      }
-      var formData = new FormData(collegeForm);
-      console.log('College FormData created, sending fetch request...');
-      fetch('', {
-        method: 'POST',
-        body: formData
-      })
-      .then(response => response.text())
-      .then(html => {
-        var parser = new DOMParser();
-        var doc = parser.parseFromString(html, 'text/html');
-        var successDiv = doc.querySelector('#successMessage');
-        if (successDiv && successDiv.innerHTML.trim() !== '') {
-          showNcstModal(
-            'Application Submitted',
-            successDiv.innerHTML,
-            'Close',
-            false,
-            function() {
-              // Close modal - no additional action needed
-            }
-          );
-          collegeForm.reset();
-          // Reset dropdowns to initial state
-          populateRegionSelect('college_region');
-          updateProvince('college_region','college_province','college_city','college_barangay');
-          // Reset all other dropdowns to default
-          resetAllDropdowns(collegeForm);
-        } else {
-          // Show error if no success message
-          collegeFormError.style.display = 'block';
-          collegeFormError.textContent = 'There was an error submitting your application. Please try again.';
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        collegeFormError.style.display = 'block';
-        collegeFormError.textContent = 'There was an error submitting your application. Please try again. Error: ' + error.message;
-      });
-    });
-  }
-});
+
 </script>
