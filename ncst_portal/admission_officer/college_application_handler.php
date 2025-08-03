@@ -20,8 +20,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// Debug: Log POST data
+// Debug: Log POST data and session info
 error_log("College application POST data received: " . print_r($_POST, true));
+error_log("Session data: " . print_r($_SESSION, true));
 
 function naIfEmptyOrSelect($val) {
     return (empty($val) || $val === '-- Select --') ? null : $val;

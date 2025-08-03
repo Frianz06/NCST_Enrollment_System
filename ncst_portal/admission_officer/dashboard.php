@@ -1,6 +1,12 @@
 <?php
 session_start();
 require_once '../../db.php';
+
+// Check if user is logged in and has admission officer role
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admission') {
+    header('Location: ../ncst_login.php');
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -610,6 +616,9 @@ $(document).ready(function() {
     // Initial load
     loadApplications();
 
+    // Initialize region dropdown for college registration
+    populateRegionSelect('college_region');
+
     // Tab navigation
     $('.nav-link').on('click', function() {
         $('.nav-link').removeClass('active');
@@ -631,6 +640,86 @@ $(document).ready(function() {
             );
         });
     });
+
+    // College form submission
+    console.log('Setting up college form submission handler');
+    $('#collegeForm').on('submit', function(e) {
+        console.log('College form submitted');
+        e.preventDefault();
+        
+        const collegeFormError = $('#collegeFormError');
+        const collegeFormSuccess = $('#collegeFormSuccess');
+        
+        // Hide previous messages
+        collegeFormError.hide();
+        collegeFormSuccess.hide();
+        
+        // Validate required fields
+        let firstInvalid = null;
+        let isValid = true;
+        
+        $(this).find('[required]').each(function() {
+            const field = $(this)[0];
+            if (!field.value || (field.tagName === 'SELECT' && field.value === '')) {
+                $(field).addClass('is-invalid');
+                if (!firstInvalid) firstInvalid = field;
+                isValid = false;
+            } else {
+                $(field).removeClass('is-invalid');
+            }
+        });
+        
+        if (!isValid) {
+            collegeFormError.show();
+            collegeFormError.text('Please fill in all required fields.');
+            if (firstInvalid) {
+                firstInvalid.focus();
+                firstInvalid.scrollIntoView({behavior: 'smooth', block: 'center'});
+            }
+            return;
+        }
+        
+        // Submit form via AJAX
+        const formData = new FormData(this);
+        
+        $.ajax({
+            url: 'college_application_handler.php',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            dataType: 'json',
+            success: function(data) {
+                if (data.success) {
+                    collegeFormSuccess.show();
+                    collegeFormSuccess.html(`
+                        <strong>Application Submitted Successfully!</strong><br>
+                        Tracking Number: <strong>${data.tracking_number}</strong><br>
+                        Student ID: <strong>${data.student_id}</strong><br>
+                        Username: <strong>${data.username}</strong><br>
+                        Password: <strong>${data.password}</strong><br>
+                        <small>The student can now login to the student portal using these credentials.</small>
+                    `);
+                    $('#collegeForm')[0].reset();
+                    // Reset dropdowns
+                    populateRegionSelect('college_region');
+                    updateProvince('college_region','college_province','college_city','college_barangay');
+                    
+                    // Refresh the applications table
+                    loadApplications();
+                } else {
+                    collegeFormError.show();
+                    collegeFormError.text(data.message || 'There was an error submitting the application. Please try again.');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+                console.error('Response:', xhr.responseText);
+                collegeFormError.show();
+                collegeFormError.text('There was an error submitting the application. Please try again.');
+            }
+        });
+    });
 });
 
 function showApplicationDetails(applicationId) {
@@ -642,82 +731,7 @@ function showApplicationDetails(applicationId) {
     });
 }
 
-// College Registration Form JavaScript
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize region dropdown for college registration
-    populateRegionSelect('college_region');
-    
-    // College form submission
-    const collegeForm = document.getElementById('collegeForm');
-    const collegeFormError = document.getElementById('collegeFormError');
-    const collegeFormSuccess = document.getElementById('collegeFormSuccess');
-    
-    if (collegeForm) {
-        collegeForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Hide previous messages
-            collegeFormError.style.display = 'none';
-            collegeFormSuccess.style.display = 'none';
-            
-            // Validate required fields
-            let firstInvalid = null;
-            collegeForm.querySelectorAll('[required]').forEach(function(field) {
-                if (!field.value || (field.tagName === 'SELECT' && field.value === '')) {
-                    field.classList.add('is-invalid');
-                    if (!firstInvalid) firstInvalid = field;
-                } else {
-                    field.classList.remove('is-invalid');
-                }
-            });
-            
-            if (firstInvalid) {
-                collegeFormError.style.display = 'block';
-                collegeFormError.textContent = 'Please fill in all required fields.';
-                firstInvalid.focus();
-                firstInvalid.scrollIntoView({behavior: 'smooth', block: 'center'});
-                return;
-            }
-            
-            // Submit form via AJAX
-            const formData = new FormData(collegeForm);
-            
-            fetch('college_application_handler.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    collegeFormSuccess.style.display = 'block';
-                    collegeFormSuccess.innerHTML = `
-                        <strong>Application Submitted Successfully!</strong><br>
-                        Tracking Number: <strong>${data.tracking_number}</strong><br>
-                        Student ID: <strong>${data.student_id}</strong><br>
-                        Username: <strong>${data.username}</strong><br>
-                        Password: <strong>${data.password}</strong><br>
-                        <small>The student can now login to the student portal using these credentials.</small>
-                    `;
-                    collegeForm.reset();
-                    // Reset dropdowns
-                    populateRegionSelect('college_region');
-                    updateProvince('college_region','college_province','college_city','college_barangay');
-                    
-                    // Refresh the applications table
-                    loadApplications();
-                } else {
-                    collegeFormError.style.display = 'block';
-                    collegeFormError.textContent = data.message || 'There was an error submitting the application. Please try again.';
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                collegeFormError.style.display = 'block';
-                collegeFormError.textContent = 'There was an error submitting the application. Please try again.';
-            });
-        });
-    }
-});
+
 
 // Location dropdown functions for college registration
 function updateProvince(regionSelectId, provinceSelectId, citySelectId, barangaySelectId) {
