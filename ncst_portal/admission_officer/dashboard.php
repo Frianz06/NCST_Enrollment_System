@@ -326,26 +326,15 @@ require_once '../../db.php';
                                             </div>
                                         </div>
                                         <div class="row mb-3">
-
-                                            <div class="col-md-3"><label class="form-label">Nationality</label><input type="text" class="form-control" name="nationality" value="Filipino"></div>
-                                            <div class="col-md-3"><label class="form-label">Religion</label><input type="text" class="form-control" name="religion"></div>
-                                            <div class="col-md-3"><label class="form-label">Dialect</label><input type="text" class="form-control" name="dialect"></div>
-                                        </div>
-                                        <div class="row mb-3">
-
-
                                             <div class="col-md-3"><label class="form-label">Mobile No</label><input type="text" class="form-control" name="mobile" required></div>
                                             <div class="col-md-3"><label class="form-label">Land Line</label><input type="text" class="form-control" name="landline"></div>
                                             <div class="col-md-3"><label class="form-label">Email Address</label><input type="email" class="form-control" name="email" required></div>
                                             <div class="col-md-3"><label class="form-label">Zip Code</label><input type="text" class="form-control" name="zip_code" required></div>
                                         </div>
-
-
                                         <div class="row mb-3">
                                             <div class="col-md-4"><label class="form-label">Nationality</label><input type="text" class="form-control" name="nationality" value="Filipino"></div>
                                             <div class="col-md-4"><label class="form-label">Religion</label><input type="text" class="form-control" name="religion"></div>
                                         </div>
-
                                         <div class="mb-3">
                                             <label class="form-label">Complete Address</label>
                                             <input type="text" class="form-control" name="address" required>
@@ -422,10 +411,7 @@ require_once '../../db.php';
                                                     <option value="DTS Student">DTS Student</option>
                                                     <option value="Cross Enrollee">Cross Enrollee</option>
                                                 </select>
-                                            </div>                                            <div class="col-md-6">
-                                                <label class="form-label">Grade 10 Section</label>
-                                                <input type="text" class="form-control" name="grade10_section" placeholder="Enter Grade 10 Section">
-
+                                            </div>
                                         </div>
                                         
                                         <!-- Additional fields for transferees -->
@@ -455,7 +441,6 @@ require_once '../../db.php';
                                                     <label class="form-label">Grade 10 Section</label>
                                                     <input type="text" class="form-control" name="grade10_section">
                                                 </div>
-
                                             </div>
                                         </div>
 
@@ -463,30 +448,6 @@ require_once '../../db.php';
                                         <h5 class="bg-info text-white p-2 rounded">Academic Performance</h5>
                                         <div class="row mb-3">
                                             <div class="col-md-6">
-
-                                                <label class="form-label">Educational Plan</label>
-                                                <select class="form-select" name="educational_plan">
-                                                    <option value="" selected>-- Select --</option>
-                                                    <option value="Academic eXentials">Academic eXentials</option>
-                                                    <option value="Academix">Academix</option>
-                                                    <option value="AXA">AXA</option>
-                                                    <option value="BDO Life">BDO Life</option>
-                                                    <option value="CAP Pension Plan">CAP Pension Plan</option>
-                                                    <option value="Insular Life">Insular Life</option>
-                                                    <option value="Manulife Education Plan">Manulife Education Plan</option>
-                                                    <option value="Pru Life UK">Pru Life UK</option>
-                                                    <option value="SSS Educational Assistance">SSS Educational Assistance</option>
-                                                    <option value="Sun Life Education Plan">Sun Life Education Plan</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Academic Achievement</label>
-                                                <select class="form-select" name="academic_achievement">
-                                                    <option value="" selected>-- Select --</option>
-                                                    <option value="Honorable Mention">Honorable Mention</option>
-                                                    <option value="Salutatorian">Salutatorian</option>
-                                                    <option value="Valedictorian">Valedictorian</option>
-
                                                 <label class="form-label">Academic Achievement</label>
                                                 <select class="form-select" name="academic_achievement">
                                                     <option value="" selected>-- Select --</option>
@@ -505,102 +466,9 @@ require_once '../../db.php';
                                                     <option value="Part-time Study">Part-time Study</option>
                                                     <option value="Work and Study">Work and Study</option>
                                                     <option value="Distance Learning">Distance Learning</option>
-
                                                 </select>
                                             </div>
                                         </div>
-
-
-                                        <!-- Work Information Section -->
-                                        <h5 class="bg-info text-white p-2 rounded">Work Information</h5>
-                                        <div class="row mb-3 align-items-center">
-                                            <div class="col-md-2">
-                                                <label class="form-label">Working?</label>
-                                                <input type="hidden" name="is_working" value="0">
-                                                <input type="checkbox" class="form-check-input ms-2" name="is_working" value="1">
-                                            </div>
-                                            <div class="col-md-4">
-                                                <label class="form-label">Employer</label>
-                                                <input type="text" class="form-control" name="employer">
-                                            </div>
-                                            <div class="col-md-2">
-                                                <label class="form-label">Work in Shifts?</label>
-                                                <input type="hidden" name="work_in_shifts" value="0">
-                                                <input type="checkbox" class="form-check-input ms-2" name="work_in_shifts" value="1">
-                                            </div>
-                                            <div class="col-md-4">
-                                                <label class="form-label">Work Position</label>
-                                                <input type="text" class="form-control" name="work_position">
-                                            </div>
-                                        </div>
-
-                                        <!-- Family Connected to NCST Section -->
-                                        <h5 class="bg-info text-white p-2 rounded">Family Connected to NCST</h5>
-                                        <div class="row mb-3 align-items-center">
-                                            <div class="col-md-2">
-                                                <label class="form-label">NCST Student</label>
-                                                <input type="hidden" name="family_connected_ncst" value="0">
-                                                <input type="checkbox" class="form-check-input ms-2" name="family_connected_ncst" value="1">
-                                            </div>
-                                            <div class="col-md-2">
-                                                <label class="form-label">No of Siblings</label>
-                                                <input type="number" class="form-control" name="no_of_siblings">
-                                            </div>
-                                            <div class="col-md-2">
-                                                <label class="form-label">NCST Employee</label>
-                                                <input type="hidden" name="ncst_employee" value="0">
-                                                <input type="checkbox" class="form-check-input ms-2" name="ncst_employee" value="1">
-                                            </div>
-                                            <div class="col-md-3">
-                                                <label class="form-label">Relationship</label>
-                                                <select class="form-select" name="ncst_relationship">
-                                                    <option value="" selected>-- Select --</option>
-                                                    <option value="Aunt-NCST Employee">Aunt-NCST Employee</option>
-                                                    <option value="Brother-NCST Employee">Brother-NCST Employee</option>
-                                                    <option value="Father-NCST Employee">Father-NCST Employee</option>
-                                                    <option value="Mother-NCST Employee">Mother-NCST Employee</option>
-                                                    <option value="No NCST Relations">No NCST Relations</option>
-                                                    <option value="Sister-NCST Employee">Sister-NCST Employee</option>
-                                                    <option value="Uncle-NCST Employee">Uncle-NCST Employee</option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <!-- How did Student come to know about NCST? -->
-                                        <h5 class="bg-info text-white p-2 rounded">How did Student come to know about NCST?</h5>
-                                        <div class="mb-3">
-                                            <select class="form-select" name="how_did_you_know_ncst">
-                                                <option value="" selected>-- Select --</option>
-                                                <option value="CareerTalk">CareerTalk</option>
-                                                <option value="Posters">Posters</option>
-                                                <option value="Leaflets">Leaflets</option>
-                                                <option value="Friends/Relatives">Friends/Relatives</option>
-                                                <option value="Billboards/Streamers">Billboards/Streamers</option>
-                                                <option value="Others">Others</option>
-                                            </select>
-                                        </div>
-                                        
-                                        <!-- Additional fields for transferees -->
-                                        <div id="transferee_fields" style="display:none;">
-                                            <div class="row mb-3">
-                                                <div class="col-md-6">
-                                                    <label class="form-label">Tertiary School</label>
-                                                    <select class="form-select" name="tertiary_school">
-                                                        <option value="" selected>-- Select --</option>
-                                                        <option value="NCST">NCST</option>
-                                                        <option value="De La Salle University">De La Salle University</option>
-                                                        <option value="University of the Philippines">University of the Philippines</option>
-                                                        <option value="Other">Other</option>
-                                                    </select>
-                                                </div>
-                                                <div class="col-md-3">
-                                                    <label class="form-label">Year Graduated</label>
-                                                    <input type="text" class="form-control" name="tertiary_year_grad">
-                                                </div>
-                                                <div class="col-md-3">
-                                                    <label class="form-label">Course Graduated</label>
-                                                    <input type="text" class="form-control" name="course_graduated">
-                                                </div>
 
                                         <!-- Work Experience Section -->
                                         <h5 class="bg-info text-white p-2 rounded">Work Experience</h5>
@@ -672,7 +540,6 @@ require_once '../../db.php';
                                                     <option value="Advertisement">Advertisement</option>
                                                     <option value="Other">Other</option>
                                                 </select>
-
                                             </div>
                                         </div>
 
@@ -1303,7 +1170,6 @@ function toggleEducationalFields() {
     }
 }
 
-
 function toggleWorkFields() {
     const isWorking = document.querySelector('select[name="is_working"]').value;
     const workFields = document.getElementById('work_fields');
@@ -1331,7 +1197,6 @@ function toggleNCSTRelationship() {
         if (ncstRelationshipField) ncstRelationshipField.style.display = 'block';
     }
 }
-
 
 </script>
 </body>

@@ -95,11 +95,7 @@ try {
         'requirements_status', 'student_type', 'tertiary_school', 'tertiary_year_grad', 'course_graduated', 
         'educational_plan', 'academic_achievement',
         'is_working', 'employer', 'work_in_shifts', 'work_position', 'family_connected_ncst', 
-
-        'ncst_employee', 'ncst_relationship', 'no_of_siblings', 'how_did_you_know_ncst'
-=======
         'ncst_relationship', 'no_of_siblings', 'how_did_you_know_ncst'
-
     ];
     
     // Compose name for legacy column
@@ -111,11 +107,7 @@ try {
     $_POST['type'] = 'College';
     
     // Handle checkboxes and defaults
-
-    $checkbox_fields = ['is_working', 'work_in_shifts', 'family_connected_ncst', 'ncst_employee', 'father_deceased', 'mother_deceased'];
-=======
     $checkbox_fields = ['is_working', 'work_in_shifts', 'family_connected_ncst', 'father_deceased', 'mother_deceased'];
-
     foreach ($checkbox_fields as $cb) {
         if (!isset($_POST[$cb])) {
             $_POST[$cb] = 0;
@@ -123,30 +115,6 @@ try {
     }
     
     // Set default values for optional fields
-
-    $optional_fields_defaults = [
-        'nationality' => 'Filipino',
-        'religion' => 'Not Specified',
-        'pob' => 'Not Specified',
-        'dialect' => 'Not Specified',
-        'grade10_section' => 'Not Applicable',
-        'educational_plan' => 'Not Specified',
-        'academic_achievement' => 'Not Specified',
-        'no_of_siblings' => '0',
-        'how_did_you_know_ncst' => 'Not Specified',
-        'employer' => 'Not Specified',
-        'work_position' => 'Not Specified',
-        'ncst_relationship' => 'Not Specified',
-        'tertiary_school' => 'Not Specified',
-        'tertiary_year_grad' => 'Not Specified',
-        'course_graduated' => 'Not Specified'
-    ];
-    
-    foreach ($optional_fields_defaults as $field => $default_value) {
-        if (!isset($_POST[$field]) || empty($_POST[$field])) {
-            $_POST[$field] = $default_value;
-        }
-=======
     if (!isset($_POST['nationality']) || empty($_POST['nationality'])) {
         $_POST['nationality'] = 'Filipino';
     }
@@ -197,7 +165,6 @@ try {
     }
     if (!isset($_POST['course_graduated']) || empty($_POST['course_graduated'])) {
         $_POST['course_graduated'] = 'Not Specified';
-
     }
     
     // Build insert arrays
@@ -218,14 +185,11 @@ try {
     $placeholders[] = '?';
     $values[] = 'new';
     
-
-=======
     // Add submitted by information
     $db_fields[] = 'admission_type';
     $placeholders[] = '?';
     $values[] = 'College';
     
-
     $sql = "INSERT INTO student_applications (" . implode(",", $db_fields) . ") VALUES (" . implode(",", $placeholders) . ")";
     
     $stmt = $conn->prepare($sql);
