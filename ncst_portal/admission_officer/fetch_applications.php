@@ -23,7 +23,7 @@ $count = 0;
 while ($row = $res->fetch_assoc()) {
     $count++;
     $fullName = $row['name'];
-    $type = isset($row['admission_type']) ? $row['admission_type'] : (stripos($row['course_or_track'], 'SHS') !== false ? 'Senior High' : 'College');
+    $type = isset($row['type']) && !empty($row['type']) ? $row['type'] : (stripos($row['course_or_track'], 'SHS') !== false ? 'Senior High' : 'College');
     $savedChecklist = [];
     if (!empty($row['requirements_checklist'])) {
         $decoded = json_decode($row['requirements_checklist'], true);

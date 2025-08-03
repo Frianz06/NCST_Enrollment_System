@@ -95,7 +95,7 @@ try {
         'requirements_status', 'student_type', 'tertiary_school', 'tertiary_year_grad', 'course_graduated', 
         'educational_plan', 'academic_achievement',
         'is_working', 'employer', 'work_in_shifts', 'work_position', 'family_connected_ncst', 
-        'ncst_relationship', 'no_of_siblings', 'how_did_you_know_ncst'
+        'ncst_employee', 'ncst_relationship', 'no_of_siblings', 'how_did_you_know_ncst'
     ];
     
     // Compose name for legacy column
@@ -107,7 +107,7 @@ try {
     $_POST['type'] = 'College';
     
     // Handle checkboxes and defaults
-    $checkbox_fields = ['is_working', 'work_in_shifts', 'family_connected_ncst', 'father_deceased', 'mother_deceased'];
+    $checkbox_fields = ['is_working', 'work_in_shifts', 'family_connected_ncst', 'ncst_employee', 'father_deceased', 'mother_deceased'];
     foreach ($checkbox_fields as $cb) {
         if (!isset($_POST[$cb])) {
             $_POST[$cb] = 0;
@@ -115,26 +115,28 @@ try {
     }
     
     // Set default values for optional fields
-    if (!isset($_POST['nationality']) || empty($_POST['nationality'])) {
-        $_POST['nationality'] = 'Filipino';
-    }
-    if (!isset($_POST['religion']) || empty($_POST['religion'])) {
-        $_POST['religion'] = 'Not Specified';
-    }
-    if (!isset($_POST['pob']) || empty($_POST['pob'])) {
-        $_POST['pob'] = 'Not Specified';
-    }
-    if (!isset($_POST['grade10_section']) || empty($_POST['grade10_section'])) {
-        $_POST['grade10_section'] = 'Not Applicable';
-    }
-    if (!isset($_POST['educational_plan']) || empty($_POST['educational_plan'])) {
-        $_POST['educational_plan'] = 'Not Specified';
-    }
-    if (!isset($_POST['no_of_siblings']) || empty($_POST['no_of_siblings'])) {
-        $_POST['no_of_siblings'] = 0;
-    }
-    if (!isset($_POST['how_did_you_know_ncst']) || empty($_POST['how_did_you_know_ncst'])) {
-        $_POST['how_did_you_know_ncst'] = 'Not Specified';
+    $optional_fields_defaults = [
+        'nationality' => 'Filipino',
+        'religion' => 'Not Specified',
+        'pob' => 'Not Specified',
+        'dialect' => 'Not Specified',
+        'grade10_section' => 'Not Applicable',
+        'educational_plan' => 'Not Specified',
+        'academic_achievement' => 'Not Specified',
+        'no_of_siblings' => '0',
+        'how_did_you_know_ncst' => 'Not Specified',
+        'employer' => 'Not Specified',
+        'work_position' => 'Not Specified',
+        'ncst_relationship' => 'Not Specified',
+        'tertiary_school' => 'Not Specified',
+        'tertiary_year_grad' => 'Not Specified',
+        'course_graduated' => 'Not Specified'
+    ];
+    
+    foreach ($optional_fields_defaults as $field => $default_value) {
+        if (!isset($_POST[$field]) || empty($_POST[$field])) {
+            $_POST[$field] = $default_value;
+        }
     }
     
     // Build insert arrays
@@ -154,11 +156,6 @@ try {
     $db_fields[] = 'status';
     $placeholders[] = '?';
     $values[] = 'new';
-    
-    // Add submitted by information
-    $db_fields[] = 'admission_type';
-    $placeholders[] = '?';
-    $values[] = 'Staff Assisted';
     
     $sql = "INSERT INTO student_applications (" . implode(",", $db_fields) . ") VALUES (" . implode(",", $placeholders) . ")";
     
