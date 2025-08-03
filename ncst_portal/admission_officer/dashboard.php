@@ -331,6 +331,10 @@ require_once '../../db.php';
                                             <div class="col-md-3"><label class="form-label">Email Address</label><input type="email" class="form-control" name="email" required></div>
                                             <div class="col-md-3"><label class="form-label">Zip Code</label><input type="text" class="form-control" name="zip_code" required></div>
                                         </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-4"><label class="form-label">Nationality</label><input type="text" class="form-control" name="nationality" value="Filipino"></div>
+                                            <div class="col-md-4"><label class="form-label">Religion</label><input type="text" class="form-control" name="religion"></div>
+                                        </div>
                                         <div class="mb-3">
                                             <label class="form-label">Complete Address</label>
                                             <input type="text" class="form-control" name="address" required>
@@ -431,6 +435,111 @@ require_once '../../db.php';
                                                     <label class="form-label">Course Graduated</label>
                                                     <input type="text" class="form-control" name="course_graduated">
                                                 </div>
+                                            </div>
+                                            <div class="row mb-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Grade 10 Section</label>
+                                                    <input type="text" class="form-control" name="grade10_section">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Academic Performance Section -->
+                                        <h5 class="bg-info text-white p-2 rounded">Academic Performance</h5>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Academic Achievement</label>
+                                                <select class="form-select" name="academic_achievement">
+                                                    <option value="" selected>-- Select --</option>
+                                                    <option value="With Honors">With Honors</option>
+                                                    <option value="With High Honors">With High Honors</option>
+                                                    <option value="With Highest Honors">With Highest Honors</option>
+                                                    <option value="Dean's List">Dean's List</option>
+                                                    <option value="None">None</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Educational Plan</label>
+                                                <select class="form-select" name="educational_plan">
+                                                    <option value="" selected>-- Select --</option>
+                                                    <option value="Full-time Study">Full-time Study</option>
+                                                    <option value="Part-time Study">Part-time Study</option>
+                                                    <option value="Work and Study">Work and Study</option>
+                                                    <option value="Distance Learning">Distance Learning</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <!-- Work Experience Section -->
+                                        <h5 class="bg-info text-white p-2 rounded">Work Experience</h5>
+                                        <div class="row mb-3">
+                                            <div class="col-md-3">
+                                                <label class="form-label">Are you currently working?</label>
+                                                <select class="form-select" name="is_working" onchange="toggleWorkFields()">
+                                                    <option value="" selected>-- Select --</option>
+                                                    <option value="1">Yes</option>
+                                                    <option value="0">No</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div id="work_fields" style="display:none;">
+                                            <div class="row mb-3">
+                                                <div class="col-md-4">
+                                                    <label class="form-label">Employer</label>
+                                                    <input type="text" class="form-control" name="employer">
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="form-label">Work Position</label>
+                                                    <input type="text" class="form-control" name="work_position">
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="form-label">Work in Shifts?</label>
+                                                    <select class="form-select" name="work_in_shifts">
+                                                        <option value="" selected>-- Select --</option>
+                                                        <option value="1">Yes</option>
+                                                        <option value="0">No</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Family Background Section -->
+                                        <h5 class="bg-info text-white p-2 rounded">Family Background</h5>
+                                        <div class="row mb-3">
+                                            <div class="col-md-3">
+                                                <label class="form-label">Number of Siblings</label>
+                                                <input type="number" class="form-control" name="no_of_siblings" min="0">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">Family Connected to NCST?</label>
+                                                <select class="form-select" name="family_connected_ncst" onchange="toggleNCSTRelationship()">
+                                                    <option value="" selected>-- Select --</option>
+                                                    <option value="1">Yes</option>
+                                                    <option value="0">No</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3" id="ncst_relationship_field" style="display:none;">
+                                                <label class="form-label">NCST Relationship</label>
+                                                <select class="form-select" name="ncst_relationship">
+                                                    <option value="" selected>-- Select --</option>
+                                                    <option value="Alumni">Alumni</option>
+                                                    <option value="Current Student">Current Student</option>
+                                                    <option value="Faculty">Faculty</option>
+                                                    <option value="Staff">Staff</option>
+                                                    <option value="Other">Other</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">How Did You Know NCST?</label>
+                                                <select class="form-select" name="how_did_you_know_ncst">
+                                                    <option value="" selected>-- Select --</option>
+                                                    <option value="Social Media">Social Media</option>
+                                                    <option value="Website">Website</option>
+                                                    <option value="Friends/Family">Friends/Family</option>
+                                                    <option value="School Visit">School Visit</option>
+                                                    <option value="Advertisement">Advertisement</option>
+                                                    <option value="Other">Other</option>
+                                                </select>
                                             </div>
                                         </div>
 
@@ -1058,6 +1167,34 @@ function toggleEducationalFields() {
         if (highYearGrad) highYearGrad.required = true;
         if (tertiarySchool) tertiarySchool.required = true;
         if (transfereeFields) transfereeFields.style.display = 'block';
+    }
+}
+
+function toggleWorkFields() {
+    const isWorking = document.querySelector('select[name="is_working"]').value;
+    const workFields = document.getElementById('work_fields');
+    const employerField = document.querySelector('input[name="employer"]');
+    const workPositionField = document.querySelector('input[name="work_position"]');
+    const workInShiftsField = document.querySelector('select[name="work_in_shifts"]');
+
+    if (workFields) workFields.style.display = 'none';
+    if (isWorking === '1') {
+        if (employerField) employerField.required = true;
+        if (workPositionField) workPositionField.required = true;
+        if (workInShiftsField) workInShiftsField.required = true;
+        if (workFields) workFields.style.display = 'block';
+    }
+}
+
+function toggleNCSTRelationship() {
+    const familyConnected = document.querySelector('select[name="family_connected_ncst"]').value;
+    const ncstRelationshipField = document.getElementById('ncst_relationship_field');
+    const ncstRelationshipSelect = document.querySelector('select[name="ncst_relationship"]');
+
+    if (ncstRelationshipField) ncstRelationshipField.style.display = 'none';
+    if (familyConnected === '1') {
+        if (ncstRelationshipSelect) ncstRelationshipSelect.required = true;
+        if (ncstRelationshipField) ncstRelationshipField.style.display = 'block';
     }
 }
 
