@@ -397,7 +397,7 @@ require_once '../../db.php';
                                         <div class="row mb-3">
                                             <div class="col-md-6">
                                                 <label class="form-label">Student Type</label>
-                                                <select class="form-select" name="student_type" required>
+                                                <select class="form-select" name="student_type" required onchange="toggleEducationalFields()">
                                                     <option value="" selected disabled>-- Select --</option>
                                                     <option value="New">New</option>
                                                     <option value="Transferee">Transferee</option>
@@ -409,6 +409,119 @@ require_once '../../db.php';
                                                 </select>
                                             </div>
                                         </div>
+                                        
+                                        <!-- Additional fields for transferees -->
+                                        <div id="transferee_fields" style="display:none;">
+                                            <div class="row mb-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Tertiary School</label>
+                                                    <select class="form-select" name="tertiary_school">
+                                                        <option value="" selected>-- Select --</option>
+                                                        <option value="NCST">NCST</option>
+                                                        <option value="De La Salle University">De La Salle University</option>
+                                                        <option value="University of the Philippines">University of the Philippines</option>
+                                                        <option value="Other">Other</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="form-label">Year Graduated</label>
+                                                    <input type="text" class="form-control" name="tertiary_year_grad">
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="form-label">Course Graduated</label>
+                                                    <input type="text" class="form-control" name="course_graduated">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Parent/Guardian Information Section -->
+                                        <h5 class="bg-info text-white p-2 rounded">Parent/Guardian Information</h5>
+                                        <div class="row mb-3">
+                                            <div class="col-md-3"><label class="form-label">Father Family Name</label><input type="text" class="form-control" name="father_family_name"></div>
+                                            <div class="col-md-3"><label class="form-label">Father Given Name</label><input type="text" class="form-control" name="father_given_name"></div>
+                                            <div class="col-md-3"><label class="form-label">Father Middle Name</label><input type="text" class="form-control" name="father_middle_name"></div>
+                                            <div class="col-md-3 d-flex align-items-end">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="father_deceased" id="father_deceased">
+                                                    <label class="form-check-label" for="father_deceased">Deceased?</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3"><label class="form-label">Father's Complete Address</label><input type="text" class="form-control" name="father_address"></div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-4"><label class="form-label">Father's Mobile No</label><input type="text" class="form-control" name="father_mobile"></div>
+                                            <div class="col-md-4"><label class="form-label">Father's Land Line</label><input type="text" class="form-control" name="father_landline"></div>
+                                            <div class="col-md-4"><label class="form-label">Father's Occupation</label><input type="text" class="form-control" name="father_occupation"></div>
+                                        </div>
+                                        <hr>
+                                        <div class="row mb-3">
+                                            <div class="col-md-3"><label class="form-label">Mother Family Name</label><input type="text" class="form-control" name="mother_family_name"></div>
+                                            <div class="col-md-3"><label class="form-label">Mother Given Name</label><input type="text" class="form-control" name="mother_given_name"></div>
+                                            <div class="col-md-3"><label class="form-label">Mother Middle Name</label><input type="text" class="form-control" name="mother_middle_name"></div>
+                                            <div class="col-md-3 d-flex align-items-end">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="mother_deceased" id="mother_deceased">
+                                                    <label class="form-check-label" for="mother_deceased">Deceased?</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-4"><label class="form-label">Mother Maiden Family Name</label><input type="text" class="form-control" name="mother_maiden_family_name"></div>
+                                            <div class="col-md-4"><label class="form-label">Mother Maiden Given Name</label><input type="text" class="form-control" name="mother_maiden_given_name"></div>
+                                            <div class="col-md-4"><label class="form-label">Mother Maiden Middle Name</label><input type="text" class="form-control" name="mother_maiden_middle_name"></div>
+                                        </div>
+                                        <div class="mb-3"><label class="form-label">Mother's Complete Address</label><input type="text" class="form-control" name="mother_address"></div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-4"><label class="form-label">Mother's Mobile No</label><input type="text" class="form-control" name="mother_mobile"></div>
+                                            <div class="col-md-4"><label class="form-label">Mother's Land Line</label><input type="text" class="form-control" name="mother_landline"></div>
+                                            <div class="col-md-4"><label class="form-label">Mother's Occupation</label><input type="text" class="form-control" name="mother_occupation"></div>
+                                        </div>
+                                        <hr>
+                                        <h6 class="text-info">Guardian Information (Required if no parent information provided)</h6>
+                                        <div class="row mb-3">
+                                            <div class="col-md-3">
+                                                <label class="form-label">Guardian Family Name</label>
+                                                <input type="text" class="form-control" name="guardian_family_name">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">Guardian Given Name</label>
+                                                <input type="text" class="form-control" name="guardian_given_name">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">Guardian Middle Name</label>
+                                                <input type="text" class="form-control" name="guardian_middle_name">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">Relationship</label>
+                                                <select class="form-select" name="guardian_relationship">
+                                                    <option value="" disabled selected>-- Select --</option>
+                                                    <option value="Father">Father</option>
+                                                    <option value="Mother">Mother</option>
+                                                    <option value="Sibling">Sibling</option>
+                                                    <option value="Relative">Relative</option>
+                                                    <option value="Other">Other</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Guardian's Complete Address</label>
+                                            <input type="text" class="form-control" name="guardian_address">
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-4">
+                                                <label class="form-label">Guardian's Mobile No</label>
+                                                <input type="text" class="form-control" name="guardian_mobile">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label">Guardian's Landline</label>
+                                                <input type="text" class="form-control" name="guardian_landline">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label">Guardian's Occupation</label>
+                                                <input type="text" class="form-control" name="guardian_occupation">
+                                            </div>
+                                        </div>
+                                        
                                         <div class="mb-3 text-end">
                                             <button type="submit" class="btn btn-warning fw-bold" style="color: #003399;">Submit Application</button>
                                             <button type="reset" class="btn btn-danger text-white ms-2">Clear Form</button>
@@ -773,18 +886,20 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Submit form via AJAX
             const formData = new FormData(collegeForm);
-            formData.append('type', 'College'); // Add the type field
             
-            fetch('../../student_applications.php', {
+            fetch('college_application_handler.php', {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.text())
-            .then(html => {
-                // Check if submission was successful
-                if (html.includes('success') || html.includes('submitted')) {
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
                     collegeFormSuccess.style.display = 'block';
-                    collegeFormSuccess.textContent = 'College application submitted successfully!';
+                    collegeFormSuccess.innerHTML = `
+                        <strong>Application Submitted Successfully!</strong><br>
+                        Tracking Number: <strong>${data.tracking_number}</strong><br>
+                        <small>The application has been added to the system and can be viewed by all authorized personnel.</small>
+                    `;
                     collegeForm.reset();
                     // Reset dropdowns
                     populateRegionSelect('college_region');
@@ -794,7 +909,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     loadApplications('new', 'pendingTableBody', 'pendingCount');
                 } else {
                     collegeFormError.style.display = 'block';
-                    collegeFormError.textContent = 'There was an error submitting the application. Please try again.';
+                    collegeFormError.textContent = data.message || 'There was an error submitting the application. Please try again.';
                 }
             })
             .catch(error => {
@@ -908,6 +1023,42 @@ function populateRegionSelect(regionSelectId) {
         option.textContent = region;
         regionSelect.appendChild(option);
     });
+}
+
+function toggleEducationalFields() {
+    const studentType = document.querySelector('select[name="student_type"]').value;
+    const transfereeFields = document.getElementById('transferee_fields');
+    const elementarySchool = document.querySelector('select[name="elementary_school"]');
+    const elementaryYearGrad = document.querySelector('input[name="elementary_year_grad"]');
+    const highSchool = document.querySelector('select[name="high_school"]');
+    const highYearGrad = document.querySelector('input[name="high_year_grad"]');
+    const tertiarySchool = document.querySelector('select[name="tertiary_school"]');
+    
+    // Reset all fields first
+    if (elementarySchool) elementarySchool.required = false;
+    if (elementaryYearGrad) elementaryYearGrad.required = false;
+    if (highSchool) highSchool.required = false;
+    if (highYearGrad) highYearGrad.required = false;
+    if (tertiarySchool) tertiarySchool.required = false;
+    
+    // Hide transferee fields by default
+    if (transfereeFields) transfereeFields.style.display = 'none';
+    
+    if (studentType === 'New') {
+        // For new students: elementary and high school education required
+        if (elementarySchool) elementarySchool.required = true;
+        if (elementaryYearGrad) elementaryYearGrad.required = true;
+        if (highSchool) highSchool.required = true;
+        if (highYearGrad) highYearGrad.required = true;
+    } else if (studentType === 'Transferee') {
+        // For transferees: elementary, high school, and tertiary school required
+        if (elementarySchool) elementarySchool.required = true;
+        if (elementaryYearGrad) elementaryYearGrad.required = true;
+        if (highSchool) highSchool.required = true;
+        if (highYearGrad) highYearGrad.required = true;
+        if (tertiarySchool) tertiarySchool.required = true;
+        if (transfereeFields) transfereeFields.style.display = 'block';
+    }
 }
 
 </script>
