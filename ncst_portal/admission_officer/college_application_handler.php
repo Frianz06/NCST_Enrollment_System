@@ -136,6 +136,36 @@ try {
     if (!isset($_POST['how_did_you_know_ncst']) || empty($_POST['how_did_you_know_ncst'])) {
         $_POST['how_did_you_know_ncst'] = 'Not Specified';
     }
+    if (!isset($_POST['academic_achievement']) || empty($_POST['academic_achievement'])) {
+        $_POST['academic_achievement'] = 'Not Specified';
+    }
+    if (!isset($_POST['is_working']) || empty($_POST['is_working'])) {
+        $_POST['is_working'] = 'Not Specified';
+    }
+    if (!isset($_POST['employer']) || empty($_POST['employer'])) {
+        $_POST['employer'] = 'Not Specified';
+    }
+    if (!isset($_POST['work_position']) || empty($_POST['work_position'])) {
+        $_POST['work_position'] = 'Not Specified';
+    }
+    if (!isset($_POST['work_in_shifts']) || empty($_POST['work_in_shifts'])) {
+        $_POST['work_in_shifts'] = 'Not Specified';
+    }
+    if (!isset($_POST['family_connected_ncst']) || empty($_POST['family_connected_ncst'])) {
+        $_POST['family_connected_ncst'] = 'Not Specified';
+    }
+    if (!isset($_POST['ncst_relationship']) || empty($_POST['ncst_relationship'])) {
+        $_POST['ncst_relationship'] = 'Not Specified';
+    }
+    if (!isset($_POST['tertiary_school']) || empty($_POST['tertiary_school'])) {
+        $_POST['tertiary_school'] = 'Not Specified';
+    }
+    if (!isset($_POST['tertiary_year_grad']) || empty($_POST['tertiary_year_grad'])) {
+        $_POST['tertiary_year_grad'] = 'Not Specified';
+    }
+    if (!isset($_POST['course_graduated']) || empty($_POST['course_graduated'])) {
+        $_POST['course_graduated'] = 'Not Specified';
+    }
     
     // Build insert arrays
     $db_fields = [];
@@ -158,7 +188,7 @@ try {
     // Add submitted by information
     $db_fields[] = 'admission_type';
     $placeholders[] = '?';
-    $values[] = 'Staff Assisted';
+    $values[] = 'College';
     
     $sql = "INSERT INTO student_applications (" . implode(",", $db_fields) . ") VALUES (" . implode(",", $placeholders) . ")";
     
