@@ -6,12 +6,11 @@ $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $student_id = trim($_POST['student_id'] ?? '');
     $password = trim($_POST['password'] ?? '');
-    $student_type = $_POST['student_type'] ?? '';
     
-    if ($student_id && $password && $student_type) {
-        // Query the new students table structure
-        $stmt = $conn->prepare('SELECT * FROM students WHERE student_id = ? AND student_type = ? LIMIT 1');
-        $stmt->bind_param('ss', $student_id, $student_type);
+    if ($student_id && $password) {
+        // Query the students table for college students only
+        $stmt = $conn->prepare('SELECT * FROM students WHERE student_id = ? AND student_type = "college" LIMIT 1');
+        $stmt->bind_param('s', $student_id);
         $stmt->execute();
         $result = $stmt->get_result();
         
@@ -31,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $error = 'Incorrect password.';
             }
         } else {
-            $error = 'Student not found or incorrect student type.';
+            $error = 'Student not found.';
         }
     } else {
         $error = 'Please fill in all fields.';
@@ -83,14 +82,6 @@ body, html {
       <div class="alert alert-danger py-2"><?php echo htmlspecialchars($error); ?></div>
     <?php endif; ?>
     <form method="post" action="student_login.php" autocomplete="off">
-      <div class="mb-3 text-start">
-        <label for="student_type" class="form-label fw-semibold" style="color: #003399;">Student Type</label>
-        <select id="student_type" name="student_type" class="form-select" required style="border-color: #003399; color: #003399;">
-          <option value="" disabled selected>Select type</option>
-          <option value="senior_high">Senior High</option>
-          <option value="college">College</option>
-        </select>
-      </div>
       <div class="mb-3 text-start">
         <label for="student_id" class="form-label fw-semibold" style="color: #003399;">Student ID</label>
         <input type="text" id="student_id" name="student_id" class="form-control" placeholder="Enter your Student ID (e.g. 2025-00001)" required style="border-color: #003399; color: #003399;">
