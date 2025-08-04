@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 03, 2025 at 04:20 PM
+-- Generation Time: Aug 04, 2025 at 02:17 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -358,50 +358,6 @@ INSERT INTO `sections` (`id`, `program_id`, `section_name`, `year_level`, `semes
 -- --------------------------------------------------------
 
 --
--- Table structure for table `subjects`
---
-
-CREATE TABLE `subjects` (
-  `id` int(11) NOT NULL,
-  `subject_code` varchar(50) NOT NULL,
-  `subject_name` varchar(200) NOT NULL,
-  `units` int(11) NOT NULL DEFAULT 3,
-  `semester` varchar(20) NOT NULL,
-  `year_level` varchar(20) NOT NULL,
-  `program_id` int(11) NOT NULL,
-  `description` text DEFAULT NULL,
-  `prerequisite` varchar(100) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `subjects`
---
-
-INSERT INTO `subjects` (`id`, `subject_code`, `subject_name`, `units`, `semester`, `year_level`, `program_id`, `description`, `prerequisite`) VALUES
-(1, 'IT101', 'Introduction to Computing', 3, '1st', '1st Year', 1, 'Basic computer concepts and applications', NULL),
-(2, 'MATH101', 'College Algebra', 3, '1st', '1st Year', 1, 'Fundamental algebraic concepts', NULL),
-(3, 'ENG101', 'English Communication', 3, '1st', '1st Year', 1, 'Basic English communication skills', NULL),
-(4, 'PE101', 'Physical Education 1', 2, '1st', '1st Year', 1, 'Physical fitness and wellness', NULL),
-(5, 'NSTP101', 'National Service Training Program 1', 3, '1st', '1st Year', 1, 'Civic welfare training service', NULL),
-(6, 'IT102', 'Computer Programming 1', 3, '2nd', '1st Year', 1, 'Introduction to programming concepts', 'IT101'),
-(7, 'MATH102', 'Discrete Mathematics', 3, '2nd', '1st Year', 1, 'Mathematical structures for computer science', 'MATH101'),
-(8, 'ENG102', 'Technical Writing', 3, '2nd', '1st Year', 1, 'Technical communication skills', 'ENG101'),
-(9, 'PE102', 'Physical Education 2', 2, '2nd', '1st Year', 1, 'Advanced physical fitness', 'PE101'),
-(10, 'NSTP102', 'National Service Training Program 2', 3, '2nd', '1st Year', 1, 'Advanced civic training', 'NSTP101'),
-(11, 'CS101', 'Introduction to Computer Science', 3, '1st', '1st Year', 2, 'Fundamentals of computer science', NULL),
-(12, 'MATH201', 'Calculus 1', 3, '1st', '1st Year', 2, 'Differential calculus', 'MATH101'),
-(13, 'ENG101', 'English Communication', 3, '1st', '1st Year', 2, 'Basic English communication skills', NULL),
-(14, 'PE101', 'Physical Education 1', 2, '1st', '1st Year', 2, 'Physical fitness and wellness', NULL),
-(15, 'NSTP101', 'National Service Training Program 1', 3, '1st', '1st Year', 2, 'Civic welfare training service', NULL),
-(16, 'CS102', 'Computer Programming 1', 3, '2nd', '1st Year', 2, 'Programming fundamentals', 'CS101'),
-(17, 'MATH202', 'Calculus 2', 3, '2nd', '1st Year', 2, 'Integral calculus', 'MATH201'),
-(18, 'ENG102', 'Technical Writing', 3, '2nd', '1st Year', 2, 'Technical communication skills', 'ENG101'),
-(19, 'PE102', 'Physical Education 2', 2, '2nd', '1st Year', 2, 'Advanced physical fitness', 'PE101'),
-(20, 'NSTP102', 'National Service Training Program 2', 3, '2nd', '1st Year', 2, 'Advanced civic training', 'NSTP101');
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `students`
 --
 
@@ -421,6 +377,13 @@ CREATE TABLE `students` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `status` enum('active','inactive','graduated') NOT NULL DEFAULT 'active'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `students`
+--
+
+INSERT INTO `students` (`id`, `student_id`, `password`, `name`, `email`, `course`, `student_type`, `program_id`, `section_id`, `year_level`, `tracking_number`, `application_id`, `created_at`, `status`) VALUES
+(0, '2025-00001', '$2y$10$sSkinQegcRXct/8N.vGP9O0w.7sddL8oJcWQ8Q5pKKRS3sGe6r0VC', 'Ychicko Frian T. Legaspi', 'yckolegaspi@gmail.com', 'BSIT', 'college', 1, NULL, '1', 'NCST-2025-00000', 0, '2025-08-03 17:23:01', 'active');
 
 -- --------------------------------------------------------
 
@@ -508,6 +471,13 @@ CREATE TABLE `student_applications` (
   `how_did_you_know_ncst` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `student_applications`
+--
+
+INSERT INTO `student_applications` (`id`, `student_id`, `name`, `email`, `course_or_track`, `gender`, `civil_status`, `type`, `admission_type`, `status`, `date_submitted`, `nationality`, `religion`, `region`, `province`, `city`, `barangay`, `last_name`, `first_name`, `middle_name`, `suffix`, `address`, `zip_code`, `mobile`, `landline`, `dob`, `pob`, `dialect`, `elementary_school`, `elementary_year_grad`, `high_school`, `high_year_grad`, `grade10_section`, `father_family_name`, `father_given_name`, `father_middle_name`, `father_deceased`, `father_address`, `father_mobile`, `father_landline`, `father_occupation`, `mother_family_name`, `mother_given_name`, `mother_middle_name`, `mother_deceased`, `mother_maiden_family_name`, `mother_maiden_given_name`, `mother_maiden_middle_name`, `mother_address`, `mother_mobile`, `mother_landline`, `mother_occupation`, `guardian_family_name`, `guardian_given_name`, `guardian_middle_name`, `guardian_relationship`, `guardian_address`, `guardian_mobile`, `guardian_landline`, `guardian_occupation`, `requirements_status`, `tracking_number`, `requirements_checklist`, `student_type`, `tertiary_school`, `tertiary_year_grad`, `course_graduated`, `educational_plan`, `academic_achievement`, `is_working`, `employer`, `work_in_shifts`, `work_position`, `family_connected_ncst`, `ncst_relationship`, `no_of_siblings`, `how_did_you_know_ncst`) VALUES
+(0, NULL, 'Legaspi, Ychicko Frian T.', 'yckolegaspi@gmail.com', 'BSIT', 'Male', 'Single', 'College', 'College', 'approved', '2025-08-04 01:23:01', 'Filipino', 'h', 'Region IV-A', 'Cavite', 'Dasmariñas', 'Zone II', 'Legaspi', 'Ychicko', 'Frian T.', NULL, 'Pallas Athena Classique Valenza Str. Anabu 2-D', '4103', '232', 'Philippines', '2025-08-04', 'Not Specified', NULL, 'Dasmariñas Elementary School', '23', 'Dasmariñas National High School', '32', 'Not Applicable', 'Legaspi', 'Ychicko', 'Frian T.', 0, 'Pallas Athena Classique Valenza Str. Anabu 2-D', NULL, 'Philippines', NULL, 'Legaspi', 'Ychicko', 'Frian T.', 0, 'Legaspi', 'Ychicko', 'Frian T.', 'Pallas Athena Classique Valenza Str. Anabu 2-D', NULL, 'Philippines', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'NCST-2025-00000', NULL, 'New', 'Not Specified', 'Not Specif', 'Not Specified', 'Not Specified', 'Not Specified', 0, 'Not Specified', 0, 'Not Specified', 0, 'Not Specified', 0, 'Not Specified');
+
 -- --------------------------------------------------------
 
 --
@@ -522,6 +492,50 @@ CREATE TABLE `student_subjects` (
   `section_id` int(11) NOT NULL,
   `enrollment_status` varchar(20) DEFAULT 'enrolled'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `subjects`
+--
+
+CREATE TABLE `subjects` (
+  `id` int(11) NOT NULL,
+  `subject_code` varchar(50) NOT NULL,
+  `subject_name` varchar(200) NOT NULL,
+  `units` int(11) NOT NULL DEFAULT 3,
+  `semester` varchar(20) NOT NULL,
+  `year_level` varchar(20) NOT NULL,
+  `program_id` int(11) NOT NULL,
+  `description` text DEFAULT NULL,
+  `prerequisite` varchar(100) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `subjects`
+--
+
+INSERT INTO `subjects` (`id`, `subject_code`, `subject_name`, `units`, `semester`, `year_level`, `program_id`, `description`, `prerequisite`) VALUES
+(1, 'IT101', 'Introduction to Computing', 3, '1st', '1st Year', 1, 'Basic computer concepts and applications', NULL),
+(2, 'MATH101', 'College Algebra', 3, '1st', '1st Year', 1, 'Fundamental algebraic concepts', NULL),
+(3, 'ENG101', 'English Communication', 3, '1st', '1st Year', 1, 'Basic English communication skills', NULL),
+(4, 'PE101', 'Physical Education 1', 2, '1st', '1st Year', 1, 'Physical fitness and wellness', NULL),
+(5, 'NSTP101', 'National Service Training Program 1', 3, '1st', '1st Year', 1, 'Civic welfare training service', NULL),
+(6, 'IT102', 'Computer Programming 1', 3, '2nd', '1st Year', 1, 'Introduction to programming concepts', 'IT101'),
+(7, 'MATH102', 'Discrete Mathematics', 3, '2nd', '1st Year', 1, 'Mathematical structures for computer science', 'MATH101'),
+(8, 'ENG102', 'Technical Writing', 3, '2nd', '1st Year', 1, 'Technical communication skills', 'ENG101'),
+(9, 'PE102', 'Physical Education 2', 2, '2nd', '1st Year', 1, 'Advanced physical fitness', 'PE101'),
+(10, 'NSTP102', 'National Service Training Program 2', 3, '2nd', '1st Year', 1, 'Advanced civic training', 'NSTP101'),
+(11, 'CS101', 'Introduction to Computer Science', 3, '1st', '1st Year', 2, 'Fundamentals of computer science', NULL),
+(12, 'MATH201', 'Calculus 1', 3, '1st', '1st Year', 2, 'Differential calculus', 'MATH101'),
+(13, 'ENG101', 'English Communication', 3, '1st', '1st Year', 2, 'Basic English communication skills', NULL),
+(14, 'PE101', 'Physical Education 1', 2, '1st', '1st Year', 2, 'Physical fitness and wellness', NULL),
+(15, 'NSTP101', 'National Service Training Program 1', 3, '1st', '1st Year', 2, 'Civic welfare training service', NULL),
+(16, 'CS102', 'Computer Programming 1', 3, '2nd', '1st Year', 2, 'Programming fundamentals', 'CS101'),
+(17, 'MATH202', 'Calculus 2', 3, '2nd', '1st Year', 2, 'Integral calculus', 'MATH201'),
+(18, 'ENG102', 'Technical Writing', 3, '2nd', '1st Year', 2, 'Technical communication skills', 'ENG101'),
+(19, 'PE102', 'Physical Education 2', 2, '2nd', '1st Year', 2, 'Advanced physical fitness', 'PE101'),
+(20, 'NSTP102', 'National Service Training Program 2', 3, '2nd', '1st Year', 2, 'Advanced civic training', 'NSTP101');
 
 -- --------------------------------------------------------
 
@@ -578,136 +592,6 @@ ALTER TABLE `sections`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `section_name` (`section_name`),
   ADD KEY `program_id` (`program_id`);
-
---
--- Indexes for table `subjects`
---
-ALTER TABLE `subjects`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `subject_code` (`subject_code`),
-  ADD KEY `program_id` (`program_id`);
-
---
--- Indexes for table `students`
---
-ALTER TABLE `students`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `student_id` (`student_id`),
-  ADD UNIQUE KEY `tracking_number` (`tracking_number`),
-  ADD KEY `program_id` (`program_id`),
-  ADD KEY `section_id` (`section_id`),
-  ADD KEY `application_id` (`application_id`);
-
---
--- Indexes for table `student_applications`
---
-ALTER TABLE `student_applications`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `tracking_number` (`tracking_number`);
-
---
--- Indexes for table `student_subjects`
---
-ALTER TABLE `student_subjects`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `unique_enrollment` (`student_id`,`subject_id`,`schedule_id`),
-  ADD KEY `student_id` (`student_id`);
-
---
--- Indexes for table `users`
---
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `username` (`username`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `enrolled_subjects`
---
-ALTER TABLE `enrolled_subjects`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `programs`
---
-ALTER TABLE `programs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
-
---
--- AUTO_INCREMENT for table `schedules`
---
-ALTER TABLE `schedules`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `sections`
---
-ALTER TABLE `sections`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=253;
-
---
--- AUTO_INCREMENT for table `subjects`
---
-ALTER TABLE `subjects`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
-
---
--- AUTO_INCREMENT for table `students`
---
-ALTER TABLE `students`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `student_applications`
---
-ALTER TABLE `student_applications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `student_subjects`
---
-ALTER TABLE `student_subjects`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `users`
---
-ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- Constraints for dumped tables
---
-
---
--- Constraints for table `schedules`
---
-ALTER TABLE `schedules`
-  ADD CONSTRAINT `schedules_ibfk_1` FOREIGN KEY (`section_id`) REFERENCES `sections` (`id`);
-
---
--- Constraints for table `sections`
---
-ALTER TABLE `sections`
-  ADD CONSTRAINT `sections_ibfk_1` FOREIGN KEY (`program_id`) REFERENCES `programs` (`id`);
-
---
--- Constraints for table `subjects`
---
-ALTER TABLE `subjects`
-  ADD CONSTRAINT `subjects_ibfk_1` FOREIGN KEY (`program_id`) REFERENCES `programs` (`id`);
-
---
--- Constraints for table `students`
---
-ALTER TABLE `students`
-  ADD CONSTRAINT `students_ibfk_1` FOREIGN KEY (`program_id`) REFERENCES `programs` (`id`),
-  ADD CONSTRAINT `students_ibfk_2` FOREIGN KEY (`section_id`) REFERENCES `sections` (`id`),
-  ADD CONSTRAINT `students_ibfk_3` FOREIGN KEY (`application_id`) REFERENCES `student_applications` (`id`);
-
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
