@@ -94,12 +94,10 @@ body, html {
       <div class="mb-3 text-start">
         <label for="student_id" class="form-label fw-semibold" style="color: #003399;">Student ID</label>
         <input type="text" id="student_id" name="student_id" class="form-control" placeholder="Enter your Student ID (e.g. 2025-00001)" required style="border-color: #003399; color: #003399;">
-        <div class="form-text">Format: 2025-##### (e.g. 2025-00001)</div>
       </div>
       <div class="mb-3 text-start">
         <label for="password" class="form-label fw-semibold" style="color: #003399;">Password</label>
         <input type="password" id="password" name="password" class="form-control" placeholder="Enter your surname" required style="border-color: #003399; color: #003399;">
-        <div class="form-text">Use your family name/surname as password</div>
       </div>
       <div class="form-check mb-3">
         <input class="form-check-input" type="checkbox" id="agree" required>
