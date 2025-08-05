@@ -518,17 +518,7 @@ function proceedToEnrollment() {
   window.location.href = 'print_enrollment.php?section_id=' + selectedSection;
 }
 
-function getQueueNumber() {
-  const queueNumber = 'E-' + String(queueCounter).padStart(3, '0');
-  document.getElementById('queueNumber').textContent = queueNumber;
-  queueCounter++;
-  
-  // Close enrollment form and show queue modal
-  var eFormModal = bootstrap.Modal.getInstance(document.getElementById('enrollFormModal'));
-  eFormModal.hide();
-  var queueModal = new bootstrap.Modal(document.getElementById('queueModal'));
-  queueModal.show();
-}
+
 
 function closeQueueModal() {
   var queueModal = bootstrap.Modal.getInstance(document.getElementById('queueModal'));

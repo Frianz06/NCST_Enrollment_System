@@ -18,7 +18,7 @@ if (!$section_id) {
 
 // Get student details
 $stmt = $conn->prepare('
-    SELECT s.*, sa.first_name, sa.middle_name, sa.last_name, sa.address, sa.contact_number, sa.gender
+    SELECT s.*, sa.first_name, sa.middle_name, sa.last_name, sa.address, sa.mobile, sa.landline, sa.gender
     FROM students s 
     LEFT JOIN student_applications sa ON s.student_id = sa.student_id 
     WHERE s.student_id = ?
@@ -209,7 +209,7 @@ $installment_total = $cash_total + $installment_charge;
             </div>
             <div class="info-row">
                 <div class="info-label">Contact No.:</div>
-                <div class="info-value"><?php echo htmlspecialchars($student['contact_number'] ?? ''); ?></div>
+                <div class="info-value"><?php echo htmlspecialchars($student['mobile'] ?? ''); ?></div>
                 <div class="info-label" style="margin-left: 40px;">Gender:</div>
                 <div class="info-value"><?php echo htmlspecialchars($student['gender'] ?? ''); ?></div>
             </div>
