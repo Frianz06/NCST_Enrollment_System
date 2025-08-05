@@ -31,17 +31,6 @@ $stmt->bind_param('i', $program_id);
 $stmt->execute();
 $subjects = $stmt->get_result();
 
-// Get student's grades
-$stmt = $conn->prepare('SELECT * FROM student_grades WHERE student_id = ?');
-$stmt->bind_param('s', $student_id);
-$stmt->execute();
-$grades = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-
-// Create grades lookup
-$grades_lookup = [];
-foreach ($grades as $grade) {
-    $grades_lookup[$grade['subject_code']] = $grade;
-}
 
 // Get available sections for the student's program and year level
 $stmt = $conn->prepare('SELECT * FROM sections WHERE program_id = ? AND year_level = ? ORDER BY section_name');
@@ -159,21 +148,6 @@ body, html {
               <i class="bi bi-pencil-square me-1"></i> Enrollment
             </button>
           </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link" id="accountabilities-tab" data-bs-toggle="tab" data-bs-target="#accountabilities" type="button" role="tab" aria-controls="accountabilities" aria-selected="false">
-              <i class="bi bi-cash-coin me-1"></i> Accountabilities
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link" id="grades-tab" data-bs-toggle="tab" data-bs-target="#grades" type="button" role="tab" aria-controls="grades" aria-selected="false">
-              <i class="bi bi-journal-text me-1"></i> Grades Viewing
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link" id="evaluation-tab" data-bs-toggle="tab" data-bs-target="#evaluation" type="button" role="tab" aria-controls="evaluation" aria-selected="false">
-              <i class="bi bi-clipboard-check me-1"></i> Instructor Evaluation
-            </button>
-          </li>
         </ul>
         
         <div class="tab-content" id="portalTabContent">
@@ -251,126 +225,6 @@ body, html {
               <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#enrollModal">Proceed to Enrollment</button>
             </div>
           </div>
-          
-          <!-- Accountabilities Tab -->
-          <div class="tab-pane fade" id="accountabilities" role="tabpanel" aria-labelledby="accountabilities-tab">
-            <div class="card mb-4">
-              <div class="card-header bg-light text-center">
-                <h5 class="mb-0 fw-bold">Student Accountabilities</h5>
-              </div>
-              <div class="card-body">
-                <div class="table-responsive">
-                  <table class="table table-bordered align-middle mb-0">
-                    <thead class="table-light">
-                      <tr>
-                        <th class="text-center">Department</th>
-                        <th class="text-center">Accountability</th>
-                        <th class="text-center">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>Registrar's Office</td>
-                        <td>Enrollment Form</td>
-                        <td><span class="badge bg-warning">Pending</span></td>
-                      </tr>
-                      <tr>
-                        <td>Accounting Office</td>
-                        <td>Tuition Fee Payment</td>
-                        <td><span class="badge bg-warning">Pending</span></td>
-                      </tr>
-                      <tr>
-                        <td>Library</td>
-                        <td>Library Card</td>
-                        <td><span class="badge bg-success">Completed</span></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Grades Tab -->
-          <div class="tab-pane fade" id="grades" role="tabpanel" aria-labelledby="grades-tab">
-            <div class="card mb-4">
-              <div class="card-header bg-light text-center">
-                <h5 class="mb-0 fw-bold">Academic Records</h5>
-              </div>
-              <div class="card-body">
-                <form>
-                  <div class="table-responsive">
-                    <table class="table table-borderless align-middle mb-0">
-                      <tbody>
-                        <tr>
-                          <td class="fw-semibold" style="width: 30%;">School Year</td>
-                          <td style="width: 70%;">
-                            <select class="form-select w-auto d-inline-block" style="min-width: 180px;">
-                              <option selected disabled>Select School Year</option>
-                              <option>2025-2026</option>
-                              <option>2024-2025</option>
-                              <option>2023-2024</option>
-                            </select>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td class="fw-semibold">Semester</td>
-                          <td>
-                            <select class="form-select w-auto d-inline-block" style="min-width: 180px;">
-                              <option selected disabled>Select Semester</option>
-                              <option>1st Semester</option>
-                              <option>2nd Semester</option>
-                              <option>Summer</option>
-                            </select>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Evaluation Tab -->
-          <div class="tab-pane fade" id="evaluation" role="tabpanel" aria-labelledby="evaluation-tab">
-            <div class="card mb-4">
-              <div class="card-header bg-light text-center">
-                <h5 class="mb-0 fw-bold">Instructor Evaluation</h5>
-              </div>
-              <div class="card-body">
-                <div class="alert alert-info mb-4">
-                  Please evaluate your instructors for the current semester. Your feedback is important for improving the quality of teaching.
-                </div>
-                <div class="table-responsive">
-                  <table class="table table-bordered align-middle mb-0">
-                    <thead class="table-light">
-                      <tr>
-                        <th>Subject Code</th>
-                        <th>Subject Name</th>
-                        <th>Instructor</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>IT 101</td>
-                        <td>Introduction to Computing</td>
-                        <td>Prof. Santos</td>
-                        <td><span class="badge bg-warning">Pending</span></td>
-                        <td><button class="btn btn-sm btn-primary">Evaluate</button></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- Proceed to Enrollment Modal -->
   <div class="modal fade" id="enrollModal" tabindex="-1" aria-labelledby="enrollModalLabel" aria-hidden="true">
