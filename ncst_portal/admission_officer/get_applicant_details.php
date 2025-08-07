@@ -10,7 +10,7 @@ if ($row = $res->fetch_assoc()) {
     // Personal Information
     echo '<h6 class="fw-bold text-primary mb-2">Personal Information</h6>';
     echo '<ul class="list-group mb-3">';
-    echo '<li class="list-group-item border-0 p-1">Full Name: ' . (!empty($row['name']) ? htmlspecialchars($row['name']) : 'Not Specified') . '</li>';
+    echo '<li class="list-group-item border-0 p-1">Full Name: ' . htmlspecialchars($row['last_name'] . ', ' . $row['first_name'] . ' ' . ($row['middle_name'] ?? '')) . '</li>';
     echo '<li class="list-group-item border-0 p-1">Birthday: ' . (!empty($row['dob']) ? htmlspecialchars($row['dob']) : 'Not Specified') . '</li>';
     echo '<li class="list-group-item border-0 p-1">Gender: ' . (!empty($row['gender']) ? htmlspecialchars($row['gender']) : 'Not Specified') . '</li>';
     echo '<li class="list-group-item border-0 p-1">Civil Status: ' . (!empty($row['civil_status']) ? htmlspecialchars($row['civil_status']) : 'Not Specified') . '</li>';

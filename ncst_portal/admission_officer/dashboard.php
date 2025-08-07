@@ -296,7 +296,7 @@ require_once '../../db.php';
                                         <div class="row mb-3">
                                             <div class="col-md-6">
                                                 <label class="form-label">Primary School</label>
-                                                <select class="form-select" name="elementary_school">
+                                                <select class="form-select" name="elementary_school" required>
                                                     <option value="" selected>-- Select --</option>
                                                     <option value="Dasmariñas Elementary School">Dasmariñas Elementary School</option>
                                                     <option value="Imus Central School">Imus Central School</option>
@@ -306,13 +306,13 @@ require_once '../../db.php';
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">Year Graduated</label>
-                                                <input type="text" class="form-control" name="elementary_year_grad">
+                                                <input type="text" class="form-control" name="elementary_year_grad" required>
                                             </div>
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col-md-6">
                                                 <label class="form-label">Secondary School</label>
-                                                <select class="form-select" name="high_school">
+                                                <select class="form-select" name="high_school" required>
                                                     <option value="" selected>-- Select --</option>
                                                     <option value="Dasmariñas National High School">Dasmariñas National High School</option>
                                                     <option value="Imus National High School">Imus National High School</option>
@@ -322,7 +322,7 @@ require_once '../../db.php';
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">Year Graduated</label>
-                                                <input type="text" class="form-control" name="high_year_grad">
+                                                <input type="text" class="form-control" name="high_year_grad" required>
                                             </div>
                                         </div>
                                         <div class="row mb-3">
@@ -682,12 +682,35 @@ document.addEventListener('DOMContentLoaded', function() {
             // Submit form via AJAX
             const formData = new FormData(collegeForm);
             
+            // Debug: Log form data
+            console.log('Submitting form data:', Object.fromEntries(formData));
+            
+            // Test the handler first
+            const testData = new FormData();
+            testData.append('test', 'true');
+            
+            fetch('college_application_handler.php', {
+                method: 'POST',
+                body: testData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Test response:', data);
+            })
+            .catch(error => {
+                console.error('Test error:', error);
+            });
+            
             fetch('college_application_handler.php', {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
             .then(data => {
+                console.log('Response data:', data);
                 if (data.success) {
                     collegeFormSuccess.style.display = 'block';
                     collegeFormSuccess.innerHTML = `
@@ -713,7 +736,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => {
                 console.error('Error:', error);
                 collegeFormError.style.display = 'block';
-                collegeFormError.textContent = 'There was an error submitting the application. Please try again.';
+                collegeFormError.textContent = 'There was an error submitting the application. Please try again. Error: ' + error.message;
             });
         });
     }

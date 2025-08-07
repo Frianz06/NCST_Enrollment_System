@@ -225,6 +225,111 @@ INSERT INTO `sections` (`id`, `program_id`, `section_name`, `year_level`, `semes
 (105, 7, 'BSCRIM - 31M1', '3', '1', 'M', 1, 40, 'college'),
 (106, 7, 'BSCRIM - 41M1', '4', '1', 'M', 1, 40, 'college');
 
+--
+-- Dumping data for table `schedules`
+--
+
+INSERT INTO `schedules` (`id`, `section_id`, `subject`, `day`, `time_start`, `time_end`, `room`, `instructor`) VALUES
+-- BSIT 1st Year 1st Semester Schedules
+(1, 1, 'GE 003C', 'Monday', '08:00:00', '09:00:00', 'Room 101', 'Prof. Santos'),
+(2, 1, 'GE 003C', 'Wednesday', '08:00:00', '09:00:00', 'Room 101', 'Prof. Santos'),
+(3, 1, 'GE 005', 'Monday', '09:00:00', '10:00:00', 'Room 102', 'Prof. Garcia'),
+(4, 1, 'GE 005', 'Wednesday', '09:00:00', '10:00:00', 'Room 102', 'Prof. Garcia'),
+(5, 1, 'GE 007', 'Monday', '10:00:00', '11:00:00', 'Room 103', 'Prof. Lopez'),
+(6, 1, 'GE 007', 'Wednesday', '10:00:00', '11:00:00', 'Room 103', 'Prof. Lopez'),
+(7, 1, 'GELEC 004-IT', 'Monday', '11:00:00', '12:00:00', 'Room 104', 'Prof. Cruz'),
+(8, 1, 'GELEC 004-IT', 'Wednesday', '11:00:00', '12:00:00', 'Room 104', 'Prof. Cruz'),
+(9, 1, 'IT 101', 'Tuesday', '08:00:00', '10:00:00', 'Computer Lab 1', 'Prof. Martinez'),
+(10, 1, 'IT 101', 'Thursday', '08:00:00', '10:00:00', 'Computer Lab 1', 'Prof. Martinez'),
+(11, 1, 'IT 102', 'Tuesday', '10:00:00', '12:00:00', 'Computer Lab 2', 'Prof. Rodriguez'),
+(12, 1, 'IT 102', 'Thursday', '10:00:00', '12:00:00', 'Computer Lab 2', 'Prof. Rodriguez'),
+(13, 1, 'NCST 001', 'Tuesday', '13:00:00', '15:00:00', 'Room 105', 'Prof. Torres'),
+(14, 1, 'NCST 001', 'Thursday', '13:00:00', '15:00:00', 'Room 105', 'Prof. Torres'),
+(15, 1, 'NSTP 001', 'Friday', '08:00:00', '10:00:00', 'Room 201', 'Prof. Gonzales'),
+(16, 1, 'NSTP 001', 'Friday', '10:00:00', '12:00:00', 'Room 201', 'Prof. Gonzales'),
+(17, 1, 'PATHFIT 1', 'Friday', '13:00:00', '15:00:00', 'Gymnasium', 'Prof. Hernandez'),
+(18, 1, 'PATHFIT 1', 'Friday', '15:00:00', '17:00:00', 'Gymnasium', 'Prof. Hernandez'),
+
+-- BSIT 11M2 Schedule
+(21, 2, 'GE 003C', 'Monday', '08:00:00', '09:00:00', 'Room 106', 'Prof. Santos'),
+(22, 2, 'GE 003C', 'Wednesday', '08:00:00', '09:00:00', 'Room 106', 'Prof. Santos'),
+(23, 2, 'GE 005', 'Monday', '09:00:00', '10:00:00', 'Room 107', 'Prof. Garcia'),
+(24, 2, 'GE 005', 'Wednesday', '09:00:00', '10:00:00', 'Room 107', 'Prof. Garcia'),
+(25, 2, 'GE 007', 'Monday', '10:00:00', '11:00:00', 'Room 108', 'Prof. Lopez'),
+(26, 2, 'GE 007', 'Wednesday', '10:00:00', '11:00:00', 'Room 108', 'Prof. Lopez'),
+(27, 2, 'GELEC 004-IT', 'Monday', '11:00:00', '12:00:00', 'Room 109', 'Prof. Cruz'),
+(28, 2, 'GELEC 004-IT', 'Wednesday', '11:00:00', '12:00:00', 'Room 109', 'Prof. Cruz'),
+(29, 2, 'IT 101', 'Tuesday', '08:00:00', '10:00:00', 'Computer Lab 5', 'Prof. Martinez'),
+(30, 2, 'IT 101', 'Thursday', '08:00:00', '10:00:00', 'Computer Lab 5', 'Prof. Martinez'),
+(31, 2, 'IT 102', 'Tuesday', '10:00:00', '12:00:00', 'Computer Lab 6', 'Prof. Rodriguez'),
+(32, 2, 'IT 102', 'Thursday', '10:00:00', '12:00:00', 'Computer Lab 6', 'Prof. Rodriguez'),
+(33, 2, 'NCST 001', 'Tuesday', '13:00:00', '15:00:00', 'Room 110', 'Prof. Torres'),
+(34, 2, 'NCST 001', 'Thursday', '13:00:00', '15:00:00', 'Room 110', 'Prof. Torres'),
+(35, 2, 'NSTP 001', 'Friday', '08:00:00', '10:00:00', 'Room 202', 'Prof. Gonzales'),
+(36, 2, 'NSTP 001', 'Friday', '10:00:00', '12:00:00', 'Room 202', 'Prof. Gonzales'),
+(37, 2, 'PATHFIT 1', 'Friday', '13:00:00', '15:00:00', 'Gymnasium', 'Prof. Hernandez'),
+(38, 2, 'PATHFIT 1', 'Friday', '15:00:00', '17:00:00', 'Gymnasium', 'Prof. Hernandez'),
+
+-- BSIT 11A1 Schedule (Afternoon)
+(41, 4, 'GE 003C', 'Monday', '13:00:00', '14:00:00', 'Room 101', 'Prof. Santos'),
+(42, 4, 'GE 003C', 'Wednesday', '13:00:00', '14:00:00', 'Room 101', 'Prof. Santos'),
+(43, 4, 'GE 005', 'Monday', '14:00:00', '15:00:00', 'Room 102', 'Prof. Garcia'),
+(44, 4, 'GE 005', 'Wednesday', '14:00:00', '15:00:00', 'Room 102', 'Prof. Garcia'),
+(45, 4, 'GE 007', 'Monday', '15:00:00', '16:00:00', 'Room 103', 'Prof. Lopez'),
+(46, 4, 'GE 007', 'Wednesday', '15:00:00', '16:00:00', 'Room 103', 'Prof. Lopez'),
+(47, 4, 'GELEC 004-IT', 'Monday', '16:00:00', '17:00:00', 'Room 104', 'Prof. Cruz'),
+(48, 4, 'GELEC 004-IT', 'Wednesday', '16:00:00', '17:00:00', 'Room 104', 'Prof. Cruz'),
+(49, 4, 'IT 101', 'Tuesday', '13:00:00', '15:00:00', 'Computer Lab 1', 'Prof. Martinez'),
+(50, 4, 'IT 101', 'Thursday', '13:00:00', '15:00:00', 'Computer Lab 1', 'Prof. Martinez'),
+(51, 4, 'IT 102', 'Tuesday', '15:00:00', '17:00:00', 'Computer Lab 2', 'Prof. Rodriguez'),
+(52, 4, 'IT 102', 'Thursday', '15:00:00', '17:00:00', 'Computer Lab 2', 'Prof. Rodriguez'),
+(53, 4, 'NCST 001', 'Tuesday', '17:00:00', '19:00:00', 'Room 105', 'Prof. Torres'),
+(54, 4, 'NCST 001', 'Thursday', '17:00:00', '19:00:00', 'Room 105', 'Prof. Torres'),
+(55, 4, 'NSTP 001', 'Friday', '13:00:00', '15:00:00', 'Room 201', 'Prof. Gonzales'),
+(56, 4, 'NSTP 001', 'Friday', '15:00:00', '17:00:00', 'Room 201', 'Prof. Gonzales'),
+(57, 4, 'PATHFIT 1', 'Friday', '17:00:00', '19:00:00', 'Gymnasium', 'Prof. Hernandez'),
+(58, 4, 'PATHFIT 1', 'Friday', '19:00:00', '21:00:00', 'Gymnasium', 'Prof. Hernandez'),
+
+-- BSCS 11M1 Schedule
+(61, 73, 'GE 003C', 'Monday', '08:00:00', '09:00:00', 'Room 301', 'Prof. Santos'),
+(62, 73, 'GE 003C', 'Wednesday', '08:00:00', '09:00:00', 'Room 301', 'Prof. Santos'),
+(63, 73, 'GE 005', 'Monday', '09:00:00', '10:00:00', 'Room 302', 'Prof. Garcia'),
+(64, 73, 'GE 005', 'Wednesday', '09:00:00', '10:00:00', 'Room 302', 'Prof. Garcia'),
+(65, 73, 'GE 007', 'Monday', '10:00:00', '11:00:00', 'Room 303', 'Prof. Lopez'),
+(66, 73, 'GE 007', 'Wednesday', '10:00:00', '11:00:00', 'Room 303', 'Prof. Lopez'),
+(67, 73, 'GELEC 004-IT', 'Monday', '11:00:00', '12:00:00', 'Room 304', 'Prof. Cruz'),
+(68, 73, 'GELEC 004-IT', 'Wednesday', '11:00:00', '12:00:00', 'Room 304', 'Prof. Cruz'),
+(69, 73, 'CS101', 'Tuesday', '08:00:00', '10:00:00', 'Computer Lab 9', 'Prof. Martinez'),
+(70, 73, 'CS101', 'Thursday', '08:00:00', '10:00:00', 'Computer Lab 9', 'Prof. Martinez'),
+(71, 73, 'CS102', 'Tuesday', '10:00:00', '12:00:00', 'Computer Lab 10', 'Prof. Rodriguez'),
+(72, 73, 'CS102', 'Thursday', '10:00:00', '12:00:00', 'Computer Lab 10', 'Prof. Rodriguez'),
+(73, 73, 'NCST 001', 'Tuesday', '13:00:00', '15:00:00', 'Room 305', 'Prof. Torres'),
+(74, 73, 'NCST 001', 'Thursday', '13:00:00', '15:00:00', 'Room 305', 'Prof. Torres'),
+(75, 73, 'NSTP 001', 'Friday', '08:00:00', '10:00:00', 'Room 301', 'Prof. Gonzales'),
+(76, 73, 'NSTP 001', 'Friday', '10:00:00', '12:00:00', 'Room 301', 'Prof. Gonzales'),
+(77, 73, 'PATHFIT 1', 'Friday', '13:00:00', '15:00:00', 'Gymnasium', 'Prof. Hernandez'),
+(78, 73, 'PATHFIT 1', 'Friday', '15:00:00', '17:00:00', 'Gymnasium', 'Prof. Hernandez'),
+
+-- BSBA 11M1 Schedule
+(81, 81, 'GE 003C', 'Monday', '08:00:00', '09:00:00', 'Room 401', 'Prof. Santos'),
+(82, 81, 'GE 003C', 'Wednesday', '08:00:00', '09:00:00', 'Room 401', 'Prof. Santos'),
+(83, 81, 'GE 005', 'Monday', '09:00:00', '10:00:00', 'Room 402', 'Prof. Garcia'),
+(84, 81, 'GE 005', 'Wednesday', '09:00:00', '10:00:00', 'Room 402', 'Prof. Garcia'),
+(85, 81, 'GE 007', 'Monday', '10:00:00', '11:00:00', 'Room 403', 'Prof. Lopez'),
+(86, 81, 'GE 007', 'Wednesday', '10:00:00', '11:00:00', 'Room 403', 'Prof. Lopez'),
+(87, 81, 'GELEC 004-IT', 'Monday', '11:00:00', '12:00:00', 'Room 404', 'Prof. Cruz'),
+(88, 81, 'GELEC 004-IT', 'Wednesday', '11:00:00', '12:00:00', 'Room 404', 'Prof. Cruz'),
+(89, 81, 'BA101', 'Tuesday', '08:00:00', '10:00:00', 'Room 406', 'Prof. Martinez'),
+(90, 81, 'BA101', 'Thursday', '08:00:00', '10:00:00', 'Room 406', 'Prof. Martinez'),
+(91, 81, 'BA102', 'Tuesday', '10:00:00', '12:00:00', 'Room 407', 'Prof. Rodriguez'),
+(92, 81, 'BA102', 'Thursday', '10:00:00', '12:00:00', 'Room 407', 'Prof. Rodriguez'),
+(93, 81, 'NCST 001', 'Tuesday', '13:00:00', '15:00:00', 'Room 408', 'Prof. Torres'),
+(94, 81, 'NCST 001', 'Thursday', '13:00:00', '15:00:00', 'Room 408', 'Prof. Torres'),
+(95, 81, 'NSTP 001', 'Friday', '08:00:00', '10:00:00', 'Room 401', 'Prof. Gonzales'),
+(96, 81, 'NSTP 001', 'Friday', '10:00:00', '12:00:00', 'Room 401', 'Prof. Gonzales'),
+(97, 81, 'PATHFIT 1', 'Friday', '13:00:00', '15:00:00', 'Gymnasium', 'Prof. Hernandez'),
+(98, 81, 'PATHFIT 1', 'Friday', '15:00:00', '17:00:00', 'Gymnasium', 'Prof. Hernandez');
+
 -- --------------------------------------------------------
 
 --
@@ -264,7 +369,6 @@ INSERT INTO `students` (`id`, `student_id`, `password`, `name`, `email`, `course
 CREATE TABLE `student_applications` (
   `id` int(11) NOT NULL,
   `student_id` varchar(20) DEFAULT NULL,
-  `name` varchar(100) NOT NULL,
   `email` varchar(100) NOT NULL,
   `course_or_track` varchar(100) NOT NULL,
   `gender` varchar(20) NOT NULL,
@@ -345,8 +449,8 @@ CREATE TABLE `student_applications` (
 -- Dumping data for table `student_applications`
 --
 
-INSERT INTO `student_applications` (`id`, `student_id`, `name`, `email`, `course_or_track`, `gender`, `civil_status`, `type`, `admission_type`, `status`, `date_submitted`, `nationality`, `religion`, `region`, `province`, `city`, `barangay`, `last_name`, `first_name`, `middle_name`, `suffix`, `address`, `zip_code`, `mobile`, `landline`, `dob`, `pob`, `dialect`, `elementary_school`, `elementary_year_grad`, `high_school`, `high_year_grad`, `grade10_section`, `father_family_name`, `father_given_name`, `father_middle_name`, `father_deceased`, `father_address`, `father_mobile`, `father_landline`, `father_occupation`, `mother_family_name`, `mother_given_name`, `mother_middle_name`, `mother_deceased`, `mother_maiden_family_name`, `mother_maiden_given_name`, `mother_maiden_middle_name`, `mother_address`, `mother_mobile`, `mother_landline`, `mother_occupation`, `guardian_family_name`, `guardian_given_name`, `guardian_middle_name`, `guardian_relationship`, `guardian_address`, `guardian_mobile`, `guardian_landline`, `guardian_occupation`, `requirements_status`, `tracking_number`, `requirements_checklist`, `student_type`, `tertiary_school`, `tertiary_year_grad`, `course_graduated`, `educational_plan`, `academic_achievement`, `is_working`, `employer`, `work_in_shifts`, `work_position`, `family_connected_ncst`, `ncst_relationship`, `no_of_siblings`, `how_did_you_know_ncst`) VALUES
-(0, NULL, 'Legaspi, Ychicko Frian T.', 'yckolegaspi@gmail.com', 'BSIT', 'Male', 'Single', 'College', 'College', 'approved', '2025-08-04 01:23:01', 'Filipino', 'h', 'Region IV-A', 'Cavite', 'Dasmariñas', 'Zone II', 'Legaspi', 'Ychicko', 'Frian T.', NULL, 'Pallas Athena Classique Valenza Str. Anabu 2-D', '4103', '232', 'Philippines', '2025-08-04', 'Not Specified', NULL, 'Dasmariñas Elementary School', '23', 'Dasmariñas National High School', '32', 'Not Applicable', 'Legaspi', 'Ychicko', 'Frian T.', 0, 'Pallas Athena Classique Valenza Str. Anabu 2-D', NULL, 'Philippines', NULL, 'Legaspi', 'Ychicko', 'Frian T.', 0, 'Legaspi', 'Ychicko', 'Frian T.', 'Pallas Athena Classique Valenza Str. Anabu 2-D', NULL, 'Philippines', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'NCST-2025-00000', NULL, 'New', 'Not Specified', 'Not Specif', 'Not Specified', 'Not Specified', 'Not Specified', 0, 'Not Specified', 0, 'Not Specified', 0, 'Not Specified', 0, 'Not Specified');
+INSERT INTO `student_applications` (`id`, `student_id`, `email`, `course_or_track`, `gender`, `civil_status`, `type`, `admission_type`, `status`, `date_submitted`, `nationality`, `religion`, `region`, `province`, `city`, `barangay`, `last_name`, `first_name`, `middle_name`, `suffix`, `address`, `zip_code`, `mobile`, `landline`, `dob`, `pob`, `dialect`, `elementary_school`, `elementary_year_grad`, `high_school`, `high_year_grad`, `grade10_section`, `father_family_name`, `father_given_name`, `father_middle_name`, `father_deceased`, `father_address`, `father_mobile`, `father_landline`, `father_occupation`, `mother_family_name`, `mother_given_name`, `mother_middle_name`, `mother_deceased`, `mother_maiden_family_name`, `mother_maiden_given_name`, `mother_maiden_middle_name`, `mother_address`, `mother_mobile`, `mother_landline`, `mother_occupation`, `guardian_family_name`, `guardian_given_name`, `guardian_middle_name`, `guardian_relationship`, `guardian_address`, `guardian_mobile`, `guardian_landline`, `guardian_occupation`, `requirements_status`, `tracking_number`, `requirements_checklist`, `student_type`, `tertiary_school`, `tertiary_year_grad`, `course_graduated`, `educational_plan`, `academic_achievement`, `is_working`, `employer`, `work_in_shifts`, `work_position`, `family_connected_ncst`, `ncst_relationship`, `no_of_siblings`, `how_did_you_know_ncst`) VALUES
+(0, '2025-00001', 'yckolegaspi@gmail.com', 'BSIT', 'Male', 'Single', 'College', 'College', 'approved', '2025-08-04 01:23:01', 'Filipino', 'h', 'Region IV-A', 'Cavite', 'Dasmariñas', 'Zone II', 'Legaspi', 'Ychicko', 'Frian T.', NULL, 'Pallas Athena Classique Valenza Str. Anabu 2-D', '4103', '232', 'Philippines', '2025-08-04', 'Not Specified', NULL, 'Dasmariñas Elementary School', '23', 'Dasmariñas National High School', '32', 'Not Applicable', 'Legaspi', 'Ychicko', 'Frian T.', 0, 'Pallas Athena Classique Valenza Str. Anabu 2-D', NULL, 'Philippines', NULL, 'Legaspi', 'Ychicko', 'Frian T.', 0, 'Legaspi', 'Ychicko', 'Frian T.', 'Pallas Athena Classique Valenza Str. Anabu 2-D', NULL, 'Philippines', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'NCST-2025-00000', NULL, 'New', 'Not Specified', 'Not Specif', 'Not Specified', 'Not Specified', 'Not Specified', 0, 'Not Specified', 0, 'Not Specified', 0, 'Not Specified', 0, 'Not Specified');
 
 -- --------------------------------------------------------
 

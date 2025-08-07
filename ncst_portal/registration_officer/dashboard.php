@@ -5,15 +5,80 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'registration') {
 }
 require_once '../../db.php';
 
+// Handle queue actions
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $action = $_POST['action'] ?? '';
+    
+    switch ($action) {
+        case 'next_queue':
+            // Get the next waiting queue
+            $stmt = $conn->prepare('SELECT * FROM queue_system WHERE status = "waiting" AND queue_date = CURDATE() ORDER BY created_at ASC LIMIT 1');
+            $stmt->execute();
+            $next_queue = $stmt->get_result()->fetch_assoc();
+            
+            if ($next_queue) {
+                // Update status to processing
+                $stmt = $conn->prepare('UPDATE queue_system SET status = "processing", processed_at = NOW() WHERE id = ?');
+                $stmt->bind_param('i', $next_queue['id']);
+                $stmt->execute();
+                
+                echo json_encode(['success' => true, 'queue_number' => $next_queue['queue_number']]);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'No more students in queue']);
+            }
+            break;
+            
+        case 'validate_enrollment':
+            $student_id = $_POST['student_id'] ?? '';
+            $section_id = $_POST['section_id'] ?? '';
+            
+            if ($student_id && $section_id) {
+                // Mark student as enrolled
+                $stmt = $conn->prepare('UPDATE student_applications SET status = "enrolled" WHERE student_id = ?');
+                $stmt->bind_param('s', $student_id);
+                $stmt->execute();
+                
+                // Update student record
+                $stmt = $conn->prepare('UPDATE students SET section_id = ? WHERE student_id = ?');
+                $stmt->bind_param('is', $section_id, $student_id);
+                $stmt->execute();
+                
+                echo json_encode(['success' => true, 'message' => 'Student enrolled successfully']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Missing required data']);
+            }
+            break;
+    }
+    exit;
+}
+
 // Fetch applicants with status 'approved' (ready for registration)
 $for_reg = $conn->query("SELECT * FROM student_applications WHERE status = 'approved' ORDER BY id DESC");
 
 // Fetch enrolled students
 $enrolled_students = $conn->query("SELECT * FROM student_applications WHERE status = 'enrolled' ORDER BY id DESC");
 
+// Get current queue status
+$stmt = $conn->prepare('
+    SELECT q.*, s.name as student_name, s.course 
+    FROM queue_system q 
+    JOIN students s ON q.student_id = s.student_id 
+    WHERE q.queue_date = CURDATE() 
+    ORDER BY q.created_at ASC
+');
+$stmt->execute();
+$queues = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+// Get current processing queue
+$stmt = $conn->prepare('SELECT * FROM queue_system WHERE status = "processing" AND queue_date = CURDATE() LIMIT 1');
+$stmt->execute();
+$current_queue = $stmt->get_result()->fetch_assoc();
+
 // Calculate counts for display
 $approved_count = $for_reg->num_rows;
 $enrolled_count = $enrolled_students->num_rows;
+$waiting_count = count(array_filter($queues, function($q) { return $q['status'] === 'waiting'; }));
+$processing_count = count(array_filter($queues, function($q) { return $q['status'] === 'processing'; }));
 
 function renderViewModal($row) {
     $id = $row['id'];
@@ -32,7 +97,7 @@ function renderViewModal($row) {
             <!-- Personal Information -->
             <h6 class="fw-bold text-primary mb-2">Personal Information</h6>
             <ul class="list-group mb-3">
-              <li class="list-group-item border-0 p-1">Full Name: <?php echo !empty($row['name']) ? htmlspecialchars($row['name']) : 'Not Specified'; ?></li>
+              <li class="list-group-item border-0 p-1">Full Name: <?php echo htmlspecialchars($row['last_name'] . ', ' . $row['first_name'] . ' ' . ($row['middle_name'] ?? '')); ?></li>
               <li class="list-group-item border-0 p-1">Birthday: <?php echo !empty($row['dob']) ? htmlspecialchars($row['dob']) : 'Not Specified'; ?></li>
               <li class="list-group-item border-0 p-1">Gender: <?php echo !empty($row['gender']) ? htmlspecialchars($row['gender']) : 'Not Specified'; ?></li>
               <li class="list-group-item border-0 p-1">Civil Status: <?php echo !empty($row['civil_status']) ? htmlspecialchars($row['civil_status']) : 'Not Specified'; ?></li>
@@ -98,13 +163,48 @@ function renderViewModal($row) {
             <h6 class="fw-bold text-primary mb-2">Guardian Information</h6>
             <ul class="list-group mb-3">
               <li class="list-group-item border-0 p-1">Guardian Name: <?php
-                $guardianName = trim(($row['guardian_family_name'] ?? '') . ' ' . ($row['guardian_given_name'] ?? ''));
-                echo !empty($guardianName) ? htmlspecialchars($guardianName) : 'Not Specified';
+                $guardianName = array_filter([$row['guardian_family_name'] ?? '', $row['guardian_given_name'] ?? '', $row['guardian_middle_name'] ?? '']);
+                echo !empty($guardianName) ? htmlspecialchars(implode(' ', $guardianName)) : 'Not Specified';
               ?></li>
-              <li class="list-group-item border-0 p-1">Guardian Contact: <?php echo !empty($row['guardian_mobile']) ? htmlspecialchars($row['guardian_mobile']) : 'Not Specified'; ?></li>
+              <li class="list-group-item border-0 p-1">Guardian Relationship: <?php echo !empty($row['guardian_relationship']) ? htmlspecialchars($row['guardian_relationship']) : 'Not Specified'; ?></li>
               <li class="list-group-item border-0 p-1">Guardian Address: <?php echo !empty($row['guardian_address']) ? htmlspecialchars($row['guardian_address']) : 'Not Specified'; ?></li>
+              <li class="list-group-item border-0 p-1">Guardian Contact: <?php echo !empty($row['guardian_mobile']) ? htmlspecialchars($row['guardian_mobile']) : 'Not Specified'; ?></li>
               <li class="list-group-item border-0 p-1">Guardian Occupation: <?php echo !empty($row['guardian_occupation']) ? htmlspecialchars($row['guardian_occupation']) : 'Not Specified'; ?></li>
             </ul>
+
+            <!-- Father Information -->
+            <h6 class="fw-bold text-primary mb-2">Father Information</h6>
+            <ul class="list-group mb-3">
+              <li class="list-group-item border-0 p-1">Father Name: <?php
+                $fatherName = array_filter([$row['father_family_name'] ?? '', $row['father_given_name'] ?? '', $row['father_middle_name'] ?? '']);
+                echo !empty($fatherName) ? htmlspecialchars(implode(' ', $fatherName)) : 'Not Specified';
+              ?></li>
+              <li class="list-group-item border-0 p-1">Father Deceased: <?php echo !empty($row['father_deceased']) ? ($row['father_deceased'] == '1' ? 'Yes' : 'No') : 'Not Specified'; ?></li>
+              <li class="list-group-item border-0 p-1">Father Address: <?php echo !empty($row['father_address']) ? htmlspecialchars($row['father_address']) : 'Not Specified'; ?></li>
+              <li class="list-group-item border-0 p-1">Father Contact: <?php echo !empty($row['father_mobile']) ? htmlspecialchars($row['father_mobile']) : 'Not Specified'; ?></li>
+              <li class="list-group-item border-0 p-1">Father Occupation: <?php echo !empty($row['father_occupation']) ? htmlspecialchars($row['father_occupation']) : 'Not Specified'; ?></li>
+            </ul>
+
+            <!-- Mother Information -->
+            <h6 class="fw-bold text-primary mb-2">Mother Information</h6>
+            <ul class="list-group mb-3">
+              <li class="list-group-item border-0 p-1">Mother Name: <?php
+                $motherName = array_filter([$row['mother_family_name'] ?? '', $row['mother_given_name'] ?? '', $row['mother_middle_name'] ?? '']);
+                echo !empty($motherName) ? htmlspecialchars(implode(' ', $motherName)) : 'Not Specified';
+              ?></li>
+              <li class="list-group-item border-0 p-1">Mother Deceased: <?php echo !empty($row['mother_deceased']) ? ($row['mother_deceased'] == '1' ? 'Yes' : 'No') : 'Not Specified'; ?></li>
+              <li class="list-group-item border-0 p-1">Mother Maiden Name: <?php
+                $motherMaidenName = array_filter([$row['mother_maiden_family_name'] ?? '', $row['mother_maiden_given_name'] ?? '', $row['mother_maiden_middle_name'] ?? '']);
+                echo !empty($motherMaidenName) ? htmlspecialchars(implode(' ', $motherMaidenName)) : 'Not Specified';
+              ?></li>
+              <li class="list-group-item border-0 p-1">Mother Address: <?php echo !empty($row['mother_address']) ? htmlspecialchars($row['mother_address']) : 'Not Specified'; ?></li>
+              <li class="list-group-item border-0 p-1">Mother Contact: <?php echo !empty($row['mother_mobile']) ? htmlspecialchars($row['mother_mobile']) : 'Not Specified'; ?></li>
+              <li class="list-group-item border-0 p-1">Mother Occupation: <?php echo !empty($row['mother_occupation']) ? htmlspecialchars($row['mother_occupation']) : 'Not Specified'; ?></li>
+            </ul>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-ncst" onclick="validateEnrollment('<?php echo $row['student_id']; ?>')">Validate Enrollment</button>
           </div>
         </div>
       </div>
@@ -122,6 +222,7 @@ function renderViewModal($row) {
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link href="../admin/admin.css" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="../../faviconn.ico">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <style>
         body { font-family: 'Poppins', Arial, sans-serif; background: #f4f6fb; }
         .ncst-header {
@@ -156,11 +257,14 @@ function renderViewModal($row) {
             background: #003399;
             border: none;
         }
-        .btn-info:hover {
+        .btn-warning {
+            background: #ffd700;
+            color: #003399;
+            border: none;
+        }
+        .btn-info:hover, .btn-warning:hover {
             opacity: 0.85;
         }
-        
-        /* NCST-themed modal */
         .modal-header.ncst-theme {
             background: #003399;
             color: #fff;
@@ -179,8 +283,6 @@ function renderViewModal($row) {
         .modal-content {
             border-radius: 1.2rem;
         }
-        
-        /* Enhanced modal styling */
         .modal-body h6 {
             color: #003399;
             border-bottom: 2px solid #FFD600;
@@ -191,336 +293,469 @@ function renderViewModal($row) {
             border-left: 3px solid #003399;
             margin-bottom: 2px;
         }
-
-        /* Tab styling */
         .nav-link {
             transition: all 0.3s ease;
             border-radius: 8px;
             margin-bottom: 0.5rem;
         }
-        
         .nav-link:hover {
             background: rgba(255, 215, 0, 0.1);
             color: #FFD600 !important;
         }
-        
         .nav-link.active {
             background: #FFD600 !important;
             color: #003399 !important;
             font-weight: 600;
         }
-
-        /* Table styling for different sections */
         .table-success thead {
             background: #28a745 !important;
-            color: #fff;
         }
-
-        /* Badge styling */
-        .badge.bg-success {
-            font-size: 0.8rem;
-            padding: 0.4rem 0.6rem;
+        .queue-display {
+            background: #003399;
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 2rem;
         }
-
-        /* Empty state styling */
+        .queue-number {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #ffcd00;
+        }
+        .queue-status {
+            font-size: 1.5rem;
+            margin-top: 1rem;
+        }
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        .stats-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
         .empty-state {
             text-align: center;
             padding: 3rem;
             color: #6c757d;
         }
-
         .empty-state i {
-            font-size: 3rem;
+            font-size: 4rem;
             margin-bottom: 1rem;
-            opacity: 0.5;
+            color: #dee2e6;
         }
     </style>
 </head>
 <body>
-    <!-- Sidebar: visible only on md and up -->
-    <div class="sidebar d-none d-md-flex flex-column align-items-center">
-        <img src="../../images/ncst-logo.png" alt="NCST Logo" class="logo">
-        <h5 class="mb-4">NCST Registration</h5>
-        <nav class="nav flex-column w-100">
-            <a class="nav-link active" href="#registration-section" data-bs-toggle="tab">For Registration</a>
-            <a class="nav-link" href="#enrolled-section" data-bs-toggle="tab">Enrolled Students</a>
-        </nav>
-    </div>
-    <div class="topbar d-flex align-items-center justify-content-end">
-        <span class="me-3">Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?></span>
-        <a href="../logout.php" class="btn btn-outline-danger btn-sm">Logout</a>
-    </div>
-    <div class="main-content">
-        <div class="tab-content">
-            <!-- For Registration Tab -->
-            <div class="tab-pane fade show active" id="registration-section">
-                <div class="card-ncst p-4">
-                                <?php if (isset($_SESSION['enrollment_success'])): ?>
-                <div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
-                    <i class="bi bi-check-circle"></i> <?php echo $_SESSION['enrollment_success']; ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    <!-- Header -->
+    <div class="ncst-header">
+        <div class="container">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <img src="../../images/ncst-logo.png" alt="NCST Logo" class="ncst-logo">
+                    <div>
+                        <h1 class="dashboard-title">Registration Officer Dashboard</h1>
+                        <p class="mb-0" style="color: #ffd700;">Welcome, <?php echo htmlspecialchars($_SESSION['username'] ?? 'Registration Officer'); ?></p>
+                    </div>
                 </div>
-                <?php unset($_SESSION['enrollment_success']); ?>
-            <?php endif; ?>
-            
-            <div class="d-flex justify-content-between align-items-center mb-3">
                 <div>
-                    <h3 class="fw-bold mb-0" style="color:#003399;">For Registration</h3>
-                    <small class="text-muted"><?php echo $approved_count; ?> student(s) ready for registration</small>
+                    <a href="../logout.php" class="btn btn-outline-warning">
+                        <i class="bi bi-box-arrow-right"></i> Logout
+                    </a>
                 </div>
-                        <div class="d-flex gap-2">
-                            <div class="input-group" style="max-width: 250px;">
-                                <input type="text" id="searchRegistrationInput" class="form-control" placeholder="Search by Student ID, Name, Course, or Type...">
-                                <span class="input-group-text bg-primary text-white"><i class="bi bi-search"></i></span>
-                            </div>
-                            <button class="btn btn-primary" onclick="enrollAllStudents()">
-                                <i class="bi bi-graduation-cap"></i> Enroll Students
-                            </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Queue Management Section -->
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <div class="queue-display">
+                    <h3>Current Queue</h3>
+                    <?php if ($current_queue): ?>
+                        <div class="queue-number"><?php echo htmlspecialchars($current_queue['queue_number']); ?></div>
+                        <div class="queue-status">Currently Processing</div>
+                        <p class="mt-3">Student: <?php echo htmlspecialchars($current_queue['student_name'] ?? 'Unknown'); ?></p>
+                        <p>Course: <?php echo htmlspecialchars($current_queue['course'] ?? 'Unknown'); ?></p>
+                    <?php else: ?>
+                        <div class="queue-number">--</div>
+                        <div class="queue-status">No Active Queue</div>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="d-grid gap-3">
+                    <button class="btn btn-warning btn-lg" onclick="nextQueue()">
+                        <i class="bi bi-arrow-right-circle"></i> Next Queue
+                    </button>
+                    <button class="btn btn-success btn-lg" onclick="completeCurrentQueue()">
+                        <i class="bi bi-check-circle"></i> Complete Current
+                    </button>
+                    <button class="btn btn-danger btn-lg" onclick="cancelCurrentQueue()">
+                        <i class="bi bi-x-circle"></i> Cancel Current
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-number"><?php echo $waiting_count; ?></div>
+                    <div class="stats-label">Waiting in Queue</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-number"><?php echo $processing_count; ?></div>
+                    <div class="stats-label">Currently Processing</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-number"><?php echo $approved_count; ?></div>
+                    <div class="stats-label">Ready for Enrollment</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-number"><?php echo $enrolled_count; ?></div>
+                    <div class="stats-label">Enrolled Students</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <ul class="nav nav-tabs mb-4" id="dashboardTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="queue-tab" data-bs-toggle="tab" data-bs-target="#queue-section" type="button" role="tab">
+                    <i class="bi bi-list-ol"></i> Queue Management
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="enrollment-tab" data-bs-toggle="tab" data-bs-target="#enrollment-section" type="button" role="tab">
+                    <i class="bi bi-person-check"></i> Enrollment Validation
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="enrolled-tab" data-bs-toggle="tab" data-bs-target="#enrolled-section" type="button" role="tab">
+                    <i class="bi bi-graduation-cap"></i> Enrolled Students
+                </button>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="dashboardTabContent">
+            <!-- Queue Management Tab -->
+            <div class="tab-pane fade show active" id="queue-section" role="tabpanel">
+                <div class="card-ncst p-4">
+                    <h3 class="fw-bold mb-3" style="color:#003399;">Queue Management</h3>
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Queue #</th>
+                                    <th>Student Name</th>
+                                    <th>Course</th>
+                                    <th>Status</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            <?php foreach ($queues as $queue): ?>
+                                <tr class="<?php echo $queue['status'] === 'processing' ? 'table-warning' : ''; ?>">
+                                    <td><?php echo htmlspecialchars($queue['queue_number']); ?></td>
+                                    <td><?php echo htmlspecialchars($queue['student_name'] ?? 'Unknown'); ?></td>
+                                    <td><?php echo htmlspecialchars($queue['course'] ?? 'Unknown'); ?></td>
+                                    <td>
+                                        <?php
+                                        $statusClass = '';
+                                        $statusText = '';
+                                        switch ($queue['status']) {
+                                            case 'waiting':
+                                                $statusClass = 'bg-warning';
+                                                $statusText = 'Waiting';
+                                                break;
+                                            case 'processing':
+                                                $statusClass = 'bg-info';
+                                                $statusText = 'Processing';
+                                                break;
+                                            case 'completed':
+                                                $statusClass = 'bg-success';
+                                                $statusText = 'Completed';
+                                                break;
+                                            case 'cancelled':
+                                                $statusClass = 'bg-danger';
+                                                $statusText = 'Cancelled';
+                                                break;
+                                        }
+                                        ?>
+                                        <span class="badge <?php echo $statusClass; ?>"><?php echo $statusText; ?></span>
+                                    </td>
+                                    <td><?php echo date('H:i', strtotime($queue['created_at'])); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                            <?php if (empty($queues)): ?>
+                                <tr>
+                                    <td colspan="5" class="text-center">
+                                        <div class="empty-state">
+                                            <i class="bi bi-list-ol"></i>
+                                            <h5>No Queue Today</h5>
+                                            <p>No students are currently in the queue.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Enrollment Validation Tab -->
+            <div class="tab-pane fade" id="enrollment-section" role="tabpanel">
+                <div class="card-ncst p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h3 class="fw-bold mb-0" style="color:#003399;">Enrollment Validation</h3>
+                            <small class="text-muted"><?php echo $approved_count; ?> student(s) ready for enrollment</small>
+                        </div>
+                        <div class="input-group" style="max-width: 320px;">
+                            <input type="text" id="searchInput" class="form-control" placeholder="Search by Student ID, Name, Course, or Type...">
+                            <span class="input-group-text bg-primary text-white"><i class="bi bi-search"></i></span>
                         </div>
                     </div>
-
-            <!-- Hamburger Button for Mobile Only (top left) -->
-            <button class="hamburger-btn d-md-none position-fixed top-0 start-0 m-3 z-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu">
-              <div class="menu-icon">
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
-            </button>
-            <!-- Offcanvas Sidebar for Mobile Only -->
-            <div class="offcanvas offcanvas-start offcanvas-ncst d-md-none" tabindex="-1" id="sidebarMenu" aria-labelledby="sidebarMenuLabel">
-              <div class="offcanvas-header">
-                <h5 class="offcanvas-title" id="sidebarMenuLabel">NCST Registration</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-              </div>
-              <div class="offcanvas-body">
-                <div class="text-center mb-4">
-                  <div class="logo d-inline-block">
-                    <img src="../../images/ncst-logo.png" alt="NCST Logo" style="max-width: 60px;">
-                  </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle" id="applicationsTable">
+                            <thead>
+                                <tr>
+                                    <th>Full Name</th>
+                                    <th>Course/Track</th>
+                                    <th>Student Type</th>
+                                    <th>Requirement Status</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            <?php while ($row = $for_reg->fetch_assoc()):
+                                $fullName = $row['last_name'] . ', ' . $row['first_name'] . ' ' . ($row['middle_name'] ?? '');
+                                $studentType = $row['student_type'] ?? '';
+                                $requirements = [
+                                    "Properly accomplished admission form",
+                                    "Four (4) 2x2 recent, identical color pictures in white background with name tag",
+                                    "Five (5) 1x1 recent, identical color pictures in white background with name tag",
+                                    "Submit original and photocopied Form 138 / Report Card",
+                                    "Submit original Good Moral Character certificate with dry seal and Photocopied",
+                                    "If married, two (2) photocopies of marriage certificate duly signed by a priest / minister",
+                                    "1pc. Long Brown Envelope"
+                                ];
+                                $savedChecklist = [];
+                                if (!empty($row['requirements_checklist'])) {
+                                    $decoded = json_decode($row['requirements_checklist'], true);
+                                    if (is_array($decoded)) $savedChecklist = $decoded;
+                                }
+                                $missing = array_filter($requirements, function($i) use ($savedChecklist) {
+                                    return empty($savedChecklist[$i]);
+                                }, ARRAY_FILTER_USE_KEY);
+                            ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($fullName); ?></td>
+                                    <td><?php echo htmlspecialchars($row['course_or_track']); ?></td>
+                                    <td><?php echo htmlspecialchars($studentType); ?></td>
+                                    <td><?php echo empty($missing) ? '<span class="badge bg-success">Complete</span>' : '<span class="badge bg-danger">Incomplete</span>'; ?></td>
+                                    <td>
+                                        <span class="badge bg-primary">Ready for Enrollment</span>
+                                        <button class="btn btn-info btn-sm ms-1" data-bs-toggle="modal" data-bs-target="#viewModal<?php echo $row['id']; ?>">View</button>
+                                        <button class="btn btn-success btn-sm ms-1" onclick="validateEnrollment('<?php echo $row['student_id']; ?>')">Validate</button>
+                                    </td>
+                                </tr>
+                                <?php renderViewModal($row); ?>
+                            <?php endwhile; ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <nav class="nav flex-column">
-                  <a class="nav-link active" href="#registration-section" data-bs-toggle="tab">For Registration</a>
-                  <a class="nav-link" href="#enrolled-section" data-bs-toggle="tab">Enrolled Students</a>
-                </nav>
-              </div>
             </div>
-            <div class="table-responsive">
-                <table class="table table-bordered align-middle" id="forRegTable">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Full Name</th>
-                            <th>Course/Track</th>
-                            <th>Student Type</th>
-                            <th>Requirement Status</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <?php while ($row = $for_reg->fetch_assoc()):
-                        $fullName = $row['name'];
-                        $studentType = $row['student_type'] ?? '';
-                        $requirements = [
-                            "Properly accomplished admission form",
-                            "Four (4) 2x2 recent, identical color pictures in white background with name tag",
-                            "Five (5) 1x1 recent, identical color pictures in white background with name tag",
-                            "Submit original and photocopied Form 138 / Report Card",
-                            "Submit original Good Moral Character certificate with dry seal and Photocopied",
-                            "If married, two (2) photocopies of marriage certificate duly signed by a priest / minister",
-                            "1pc. Long Brown Envelope"
-                        ];
-                        $savedChecklist = [];
-                        if (!empty($row['requirements_checklist'])) {
-                            $decoded = json_decode($row['requirements_checklist'], true);
-                            if (is_array($decoded)) $savedChecklist = $decoded;
-                        }
-                        $missing = array_filter($requirements, function($i) use ($savedChecklist) {
-                            return empty($savedChecklist[$i]);
-                        }, ARRAY_FILTER_USE_KEY);
-                    ?>
-                        <tr>
-                            <td><?php echo htmlspecialchars($fullName); ?></td>
-                            <td><?php echo htmlspecialchars($row['course_or_track']); ?></td>
-                            <td><?php echo htmlspecialchars($studentType); ?></td>
-                            <td><?php echo empty($missing) ? '<span class="badge bg-success">Complete</span>' : '<span class="badge bg-danger">Incomplete</span>'; ?></td>
-                            <td>
-                                <span class="badge bg-primary">Ready for Enrollment</span>
-                                <button class="btn btn-info btn-sm ms-1" data-bs-toggle="modal" data-bs-target="#viewModal<?php echo $row['id']; ?>">View</button>
-                            </td>
-                        </tr>
-                        <?php renderViewModal($row); ?>
-                    <?php endwhile; ?>
-                    </tbody>
-                </table>
+
+            <!-- Enrolled Students Tab -->
+            <div class="tab-pane fade" id="enrolled-section" role="tabpanel">
+                <div class="card-ncst p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h3 class="fw-bold mb-0" style="color:#28a745;">Enrolled Students</h3>
+                            <small class="text-muted"><?php echo $enrolled_count; ?> student(s) officially enrolled</small>
+                        </div>
+                        <div class="input-group" style="max-width: 320px;">
+                            <input type="text" id="searchEnrolledInput" class="form-control" placeholder="Search by Student ID, Name, Course, or Type...">
+                            <span class="input-group-text bg-success text-white"><i class="bi bi-search"></i></span>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle" id="enrolledTable">
+                            <thead class="table-success">
+                                <tr>
+                                    <th>Student ID</th>
+                                    <th>Full Name</th>
+                                    <th>Course/Track</th>
+                                    <th>Student Type</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            <?php 
+                            $enrolled_count_display = 0;
+                            while ($row = $enrolled_students->fetch_assoc()):
+                                $enrolled_count_display++;
+                                $fullName = $row['last_name'] . ', ' . $row['first_name'] . ' ' . ($row['middle_name'] ?? '');
+                                $studentType = $row['student_type'] ?? '';
+                            ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($row['student_id'] ?? ''); ?></td>
+                                    <td><?php echo htmlspecialchars($fullName); ?></td>
+                                    <td><?php echo htmlspecialchars($row['course_or_track']); ?></td>
+                                    <td><?php echo htmlspecialchars($studentType); ?></td>
+                                    <td>
+                                        <span class="badge bg-success">Enrolled</span>
+                                    </td>
+                                </tr>
+                            <?php endwhile; ?>
+                            <?php if ($enrolled_count_display == 0): ?>
+                                <tr>
+                                    <td colspan="4" class="text-center">
+                                        <div class="empty-state">
+                                            <i class="bi bi-graduation-cap"></i>
+                                            <h5>No Enrolled Students</h5>
+                                            <p>No students have been officially enrolled yet.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Enrolled Students Tab -->
-    <div class="tab-pane fade" id="enrolled-section">
-        <div class="card-ncst p-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <div>
-                    <h3 class="fw-bold mb-0" style="color:#28a745;">Enrolled Students</h3>
-                    <small class="text-muted"><?php echo $enrolled_count; ?> student(s) officially enrolled</small>
-                </div>
-                <div class="input-group" style="max-width: 320px;">
-                    <input type="text" id="searchEnrolledInput" class="form-control" placeholder="Search by Student ID, Name, Course, or Type...">
-                    <span class="input-group-text bg-success text-white"><i class="bi bi-search"></i></span>
-                </div>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-bordered align-middle" id="enrolledTable">
-                    <thead class="table-success">
-                        <tr>
-                            <th>Student ID</th>
-                            <th>Full Name</th>
-                            <th>Course/Track</th>
-                            <th>Student Type</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <?php 
-                    $enrolled_count_display = 0;
-                    while ($row = $enrolled_students->fetch_assoc()):
-                        $enrolled_count_display++;
-                        $fullName = $row['name'];
-                        $studentType = $row['student_type'] ?? '';
-                    ?>
-                        <tr>
-                            <td><?php echo htmlspecialchars($row['student_id'] ?? ''); ?></td>
-                            <td><?php echo htmlspecialchars($fullName); ?></td>
-                            <td><?php echo htmlspecialchars($row['course_or_track']); ?></td>
-                            <td><?php echo htmlspecialchars($studentType); ?></td>
-                            <td>
-                                <span class="badge bg-success">Enrolled</span>
-                            </td>
-                        </tr>
-                    <?php endwhile; ?>
-                    <?php if ($enrolled_count_display == 0): ?>
-                        <tr>
-                            <td colspan="4" class="text-center">
-                                <div class="empty-state">
-                                    <i class="bi bi-graduation-cap"></i>
-                                    <h5>No Enrolled Students</h5>
-                                    <p>No students have been officially enrolled yet.</p>
-                                </div>
-                            </td>
-                        </tr>
-                    <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-</div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('keyup', function() {
+            const searchTerm = this.value.toLowerCase();
+            const table = document.getElementById('applicationsTable');
+            const rows = table.getElementsByTagName('tr');
 
-<!-- Reusable NCST Modal -->
-<div class="modal fade" id="ncstModal" tabindex="-1" aria-labelledby="ncstModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header ncst-theme">
-        <div class="d-flex align-items-center">
-          <img src="../../images/ncst-logo.png" alt="NCST Logo" style="height: 30px; margin-right: 10px;">
-          <h5 class="modal-title mb-0" id="ncstModalLabel">Modal Title</h5>
-        </div>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter: invert(38%) sepia(99%) saturate(749%) hue-rotate(1deg) brightness(104%) contrast(104%);"></button>
-      </div>
-      <div class="modal-body text-center">
-        <div id="ncstModalContent" style="font-size:1.1rem; background: white; padding: 20px; border-radius: 8px; border: 1px solid #dee2e6;">
-          Modal content goes here
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-ncst" id="ncstModalConfirm">Confirm</button>
-      </div>
-    </div>
-  </div>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.js"></script>
-<script>
-// Search bar filter logic
-$(document).ready(function() {
-    // Registration search
-    $('#searchRegistrationInput').on('keyup', function() {
-        var value = $(this).val().toLowerCase();
-        $('#forRegTable tbody tr').filter(function() {
-            var name = $(this).find('td').eq(0).text().toLowerCase();
-            var course = $(this).find('td').eq(1).text().toLowerCase();
-            var type = $(this).find('td').eq(2).text().toLowerCase();
-            $(this).toggle(
-                name.indexOf(value) > -1 ||
-                course.indexOf(value) > -1 ||
-                type.indexOf(value) > -1
-            );
+            for (let i = 1; i < rows.length; i++) {
+                const row = rows[i];
+                const cells = row.getElementsByTagName('td');
+                let found = false;
+
+                for (let j = 0; j < cells.length; j++) {
+                    const cellText = cells[j].textContent.toLowerCase();
+                    if (cellText.includes(searchTerm)) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                row.style.display = found ? '' : 'none';
+            }
         });
-    });
 
-    // Enrolled students search
-    $('#searchEnrolledInput').on('keyup', function() {
-        var value = $(this).val().toLowerCase();
-        $('#enrolledTable tbody tr').filter(function() {
-            var name = $(this).find('td').eq(0).text().toLowerCase();
-            var course = $(this).find('td').eq(1).text().toLowerCase();
-            var type = $(this).find('td').eq(2).text().toLowerCase();
-            $(this).toggle(
-                name.indexOf(value) > -1 ||
-                course.indexOf(value) > -1 ||
-                type.indexOf(value) > -1
-            );
+        document.getElementById('searchEnrolledInput').addEventListener('keyup', function() {
+            const searchTerm = this.value.toLowerCase();
+            const table = document.getElementById('enrolledTable');
+            const rows = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < rows.length; i++) {
+                const row = rows[i];
+                const cells = row.getElementsByTagName('td');
+                let found = false;
+
+                for (let j = 0; j < cells.length; j++) {
+                    const cellText = cells[j].textContent.toLowerCase();
+                    if (cellText.includes(searchTerm)) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                row.style.display = found ? '' : 'none';
+            }
         });
-    });
 
-    // Tab navigation
-    $('.nav-link').on('click', function() {
-        $('.nav-link').removeClass('active');
-        $(this).addClass('active');
-    });
-});
+        // Queue management functions
+        function nextQueue() {
+            fetch('dashboard.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'action=next_queue'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert(data.message || 'No more students in queue');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error processing queue');
+            });
+        }
 
-// Reusable NCST Modal Functions
-function showNcstModal(title, content, confirmText = 'Confirm', showCancel = true, onConfirm = null) {
-  document.getElementById('ncstModalLabel').textContent = title;
-  document.getElementById('ncstModalContent').innerHTML = content;
-  document.getElementById('ncstModalConfirm').textContent = confirmText;
-  
-  const cancelBtn = document.querySelector('#ncstModal .btn-secondary');
-  if (showCancel) {
-    cancelBtn.style.display = 'block';
-  } else {
-    cancelBtn.style.display = 'none';
-  }
-  
-  // Clear previous event listeners
-  const confirmBtn = document.getElementById('ncstModalConfirm');
-  const newConfirmBtn = confirmBtn.cloneNode(true);
-  confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
-  
-  // Add new event listener
-  if (onConfirm) {
-    newConfirmBtn.addEventListener('click', onConfirm);
-  }
-  
-  const modal = new bootstrap.Modal(document.getElementById('ncstModal'));
-  modal.show();
-}
+        function completeCurrentQueue() {
+            if (confirm('Mark current queue as completed?')) {
+                // Implementation for completing current queue
+                location.reload();
+            }
+        }
 
-// Enrollment function
-function enrollStudent(studentId, studentType) {
-    // Redirect to universal enrollment page
-    window.location.href = 'enrollment_page.php';
-}
+        function cancelCurrentQueue() {
+            if (confirm('Cancel current queue?')) {
+                // Implementation for canceling current queue
+                location.reload();
+            }
+        }
 
-// Enroll all students
-function enrollAllStudents() {
-    // Redirect to universal enrollment page
-    window.location.href = 'enrollment_page.php';
-}
-</script>
+        function validateEnrollment(studentId) {
+            if (confirm('Validate enrollment for this student?')) {
+                fetch('dashboard.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'action=validate_enrollment&student_id=' + studentId
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Student enrolled successfully!');
+                        location.reload();
+                    } else {
+                        alert(data.message || 'Error enrolling student');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error enrolling student');
+                });
+            }
+        }
+    </script>
 </body>
 </html>

@@ -14,7 +14,7 @@ $count = 0;
 
 while ($row = $res->fetch_assoc()) {
     $count++;
-    $fullName = $row['name'];
+            $fullName = $row['last_name'] . ', ' . $row['first_name'] . ' ' . ($row['middle_name'] ?? '');
     $type = isset($row['type']) && !empty($row['type']) ? $row['type'] : (stripos($row['course_or_track'], 'SHS') !== false ? 'Senior High' : 'College');
     
     echo '<tr>';

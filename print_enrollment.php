@@ -20,7 +20,7 @@ if (!$section_id) {
 $stmt = $conn->prepare('
     SELECT s.*, sa.first_name, sa.middle_name, sa.last_name, sa.address, sa.mobile, sa.landline, sa.gender
     FROM students s 
-    LEFT JOIN student_applications sa ON s.student_id = sa.student_id 
+    LEFT JOIN student_applications sa ON s.application_id = sa.id 
     WHERE s.student_id = ?
 ');
 $stmt->bind_param('s', $student_id);
@@ -39,11 +39,24 @@ $stmt->bind_param('iss', $student['program_id'], $section['year_level'], $sectio
 $stmt->execute();
 $subjects = $stmt->get_result();
 
-// Calculate total units
+// Get schedules for the selected section
+$stmt = $conn->prepare('SELECT * FROM schedules WHERE section_id = ? ORDER BY day, time_start');
+$stmt->bind_param('i', $section_id);
+$stmt->execute();
+$schedules = $stmt->get_result();
+
+// Create a lookup array for schedules by subject
+$schedule_lookup = [];
+while ($schedule = $schedules->fetch_assoc()) {
+    $schedule_lookup[$schedule['subject']][] = $schedule;
+}
+
+// Calculate total units and create enrolled subjects with schedules
 $total_units = 0;
 $enrolled_subjects = [];
 while ($subject = $subjects->fetch_assoc()) {
     $total_units += $subject['units'];
+    $subject['schedules'] = $schedule_lookup[$subject['subject_code']] ?? [];
     $enrolled_subjects[] = $subject;
 }
 
@@ -168,9 +181,6 @@ $installment_total = $cash_total + $installment_charge;
 </head>
 <body>
     <div class="print-btn">
-        <button class="btn btn-primary" onclick="window.print()">
-            <i class="bi bi-printer"></i> Print
-        </button>
         <a href="student_portal.php" class="btn btn-secondary">
             <i class="bi bi-arrow-left"></i> Back
         </a>
@@ -197,7 +207,7 @@ $installment_total = $cash_total + $installment_charge;
             </div>
             <div class="info-row">
                 <div class="info-label">Last Name:</div>
-                <div class="info-value"><?php echo htmlspecialchars($student['last_name'] ?? $student['name']); ?></div>
+                <div class="info-value"><?php echo htmlspecialchars($student['last_name'] ?? ''); ?></div>
                 <div class="info-label" style="margin-left: 40px;">First Name:</div>
                 <div class="info-value"><?php echo htmlspecialchars($student['first_name'] ?? ''); ?></div>
             </div>
@@ -248,18 +258,35 @@ $installment_total = $cash_total + $installment_charge;
                     </thead>
                     <tbody>
                         <?php foreach ($enrolled_subjects as $subject): ?>
-                        <tr>
-                            <td><?php echo htmlspecialchars($subject['subject_code']); ?></td>
-                            <td><?php echo htmlspecialchars($subject['subject_name']); ?></td>
-                            <td class="text-center"><?php echo htmlspecialchars($subject['units']); ?></td>
-                            <td class="text-center">Lec</td>
-                            <td class="text-center">M</td>
-                            <td class="text-center">8:00AM</td>
-                            <td class="text-center">9:00AM</td>
-                            <td class="text-center"><?php echo htmlspecialchars($section['section_name']); ?></td>
-                            <td class="text-center">Room 101</td>
-                            <td class="text-center">TBA</td>
-                        </tr>
+                            <?php if (!empty($subject['schedules'])): ?>
+                                <?php foreach ($subject['schedules'] as $schedule): ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($subject['subject_code']); ?></td>
+                                    <td><?php echo htmlspecialchars($subject['subject_name']); ?></td>
+                                    <td class="text-center"><?php echo htmlspecialchars($subject['units']); ?></td>
+                                    <td class="text-center">Lec</td>
+                                    <td class="text-center"><?php echo htmlspecialchars($schedule['day']); ?></td>
+                                    <td class="text-center"><?php echo date('g:iA', strtotime($schedule['time_start'])); ?></td>
+                                    <td class="text-center"><?php echo date('g:iA', strtotime($schedule['time_end'])); ?></td>
+                                    <td class="text-center"><?php echo htmlspecialchars($section['section_name']); ?></td>
+                                    <td class="text-center"><?php echo htmlspecialchars($schedule['room']); ?></td>
+                                    <td class="text-center"><?php echo htmlspecialchars($schedule['instructor']); ?></td>
+                                </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($subject['subject_code']); ?></td>
+                                    <td><?php echo htmlspecialchars($subject['subject_name']); ?></td>
+                                    <td class="text-center"><?php echo htmlspecialchars($subject['units']); ?></td>
+                                    <td class="text-center">Lec</td>
+                                    <td class="text-center">TBA</td>
+                                    <td class="text-center">TBA</td>
+                                    <td class="text-center">TBA</td>
+                                    <td class="text-center"><?php echo htmlspecialchars($section['section_name']); ?></td>
+                                    <td class="text-center">TBA</td>
+                                    <td class="text-center">TBA</td>
+                                </tr>
+                            <?php endif; ?>
                         <?php endforeach; ?>
                         <tr class="table-light">
                             <td colspan="2" class="text-end fw-bold">Total Units:</td>

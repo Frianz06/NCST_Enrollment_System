@@ -20,8 +20,20 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+// Debug: Test endpoint
+if (isset($_POST['test']) && $_POST['test'] === 'true') {
+    echo json_encode(['success' => true, 'message' => 'Handler is working']);
+    exit;
+}
+
 // Debug: Log POST data
 error_log("College application POST data received: " . print_r($_POST, true));
+
+// Debug: Check if form is being submitted
+if (empty($_POST)) {
+    echo json_encode(['success' => false, 'message' => 'No form data received']);
+    exit;
+}
 
 function naIfEmptyOrSelect($val) {
     return (empty($val) || $val === '-- Select --') ? null : $val;
@@ -91,10 +103,9 @@ foreach ($all_required_fields as $field) {
     }
 }
 
-// Check if guardian information is required
+// Check if guardian information is required (only if no parent information is provided)
 $guardian_required = false;
-if ((empty($_POST['father_family_name']) && empty($_POST['mother_family_name'])) || 
-    (isset($_POST['guardian_required']) && $_POST['guardian_required'] == '1')) {
+if (empty($_POST['father_family_name']) && empty($_POST['mother_family_name'])) {
     $guardian_required = true;
     $guardian_fields = ['guardian_family_name', 'guardian_given_name', 'guardian_relationship', 
                        'guardian_address', 'guardian_mobile', 'guardian_occupation'];
@@ -119,7 +130,7 @@ try {
     
     // List of all columns in the student_applications table that can be filled by the form
     $columns = [
-        'name', 'email', 'course_or_track', 'gender', 'civil_status', 'type', 'admission_type', 'status', 
+        'email', 'course_or_track', 'gender', 'civil_status', 'type', 'admission_type', 'status', 
         'nationality', 'religion', 'region', 'province', 'city', 'barangay',
         'last_name', 'first_name', 'middle_name', 'suffix', 'address', 'zip_code', 'mobile', 'landline', 
         'dob', 'pob', 'dialect',
@@ -136,10 +147,6 @@ try {
         'is_working', 'employer', 'work_in_shifts', 'work_position', 'family_connected_ncst', 
         'ncst_relationship', 'no_of_siblings', 'how_did_you_know_ncst'
     ];
-    
-    // Compose name for legacy column
-    $name = trim(($_POST['last_name'] ?? '') . ', ' . ($_POST['first_name'] ?? '') . ' ' . ($_POST['middle_name'] ?? '') . ' ' . ($_POST['suffix'] ?? ''));
-    $_POST['name'] = $name;
     
     // Set course_or_track and type for college applications
     $_POST['course_or_track'] = $_POST['course'];
@@ -179,7 +186,7 @@ try {
         $_POST['academic_achievement'] = 'Not Specified';
     }
     if (!isset($_POST['is_working']) || empty($_POST['is_working'])) {
-        $_POST['is_working'] = 'Not Specified';
+        $_POST['is_working'] = 0;
     }
     if (!isset($_POST['employer']) || empty($_POST['employer'])) {
         $_POST['employer'] = 'Not Specified';
@@ -188,10 +195,10 @@ try {
         $_POST['work_position'] = 'Not Specified';
     }
     if (!isset($_POST['work_in_shifts']) || empty($_POST['work_in_shifts'])) {
-        $_POST['work_in_shifts'] = 'Not Specified';
+        $_POST['work_in_shifts'] = 0;
     }
     if (!isset($_POST['family_connected_ncst']) || empty($_POST['family_connected_ncst'])) {
-        $_POST['family_connected_ncst'] = 'Not Specified';
+        $_POST['family_connected_ncst'] = 0;
     }
     if (!isset($_POST['ncst_relationship']) || empty($_POST['ncst_relationship'])) {
         $_POST['ncst_relationship'] = 'Not Specified';

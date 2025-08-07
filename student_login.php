@@ -97,8 +97,13 @@ body, html {
         </label>
       </div>
      <button type="submit" class="btn w-100 fw-bold mb-2" style="background: #ffcd00; color: #003399; border-radius: 5px; font-size: 1.1rem;">Login</button>
-      <div class="text-end">
+      <div class="text-end mb-3">
         <a href="#" class="small" style="color: #003399;">Forgot password?</a>
+      </div>
+      <div class="text-center">
+        <a href="index.php" class="btn btn-outline-secondary btn-sm">
+          <i class="bi bi-arrow-left"></i> Back to Home
+        </a>
       </div>
       </form>
       <!-- Terms of Service Modal -->

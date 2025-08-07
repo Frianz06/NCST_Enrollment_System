@@ -32,8 +32,8 @@ $stmt->execute();
 $subjects = $stmt->get_result();
 
 
-// Get available sections for the student's program and year level
-$stmt = $conn->prepare('SELECT * FROM sections WHERE program_id = ? AND year_level = ? ORDER BY section_name');
+// Get available sections for the student's program and year level (1st semester only)
+$stmt = $conn->prepare('SELECT * FROM sections WHERE program_id = ? AND year_level = ? AND semester = "1" ORDER BY section_name');
 $stmt->bind_param('is', $program_id, $student['year_level']);
 $stmt->execute();
 $available_sections = $stmt->get_result();
